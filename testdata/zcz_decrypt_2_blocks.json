@@ -1,0 +1,7 @@
+{
+  "key": "0102030405060708090a0b0c0d0e0f10",
+  "plaintext": "0102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f20",
+  "num_plaintext_bytes": 32,
+  "num_ciphertext_bytes": 32,
+  "ciphertext": "5fe81198583b4955916dd13a3418c02d470b4b3dc4518288968b383a6a34ebf4"
+}

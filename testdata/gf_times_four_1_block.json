@@ -1,0 +1,6 @@
+{
+  "input": "0102030405060708090a0b0c0d0e0f10",
+  "num_input_bytes": 16,
+  "num_output_bytes": 16,
+  "output": "0102030405060708090a0b0c0d0e0f10"
+}

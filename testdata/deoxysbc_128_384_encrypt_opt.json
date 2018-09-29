@@ -1,0 +1,11 @@
+{
+  "key": "000102030405060708090a0b0c0d0e0f",
+  "plaintext": "000102030405060708090a0b0c0d0e0f",
+  "tweak": "000102030405060708090a0b0c0d0e0f",
+  "num_plaintext_bytes": 16,
+  "num_ciphertext_bytes": 16,
+  "num_tweak_bytes": 16,
+  "ciphertext": "b8f88e40f90b1d2fdc806fd4cc2ab1dd",
+  "tweak_domain": "42",
+  "tweak_counter": "1716151413121110"
+}
