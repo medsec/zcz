@@ -55,27 +55,27 @@ If make is known, run
 
 or, mostly, it suffices to run
 
-`test-deoxys-ref`
-`test-zcz-ref`
-`test-deoxys-opt`
-`test-zcz-opt`
-`benchmark`
+- `test-deoxys-ref`
+- `test-zcz-ref`
+- `test-deoxys-opt`
+- `test-zcz-opt`
+- `benchmark`
 
 For testing:
 
-`bin/test-deoxysbc`
-`bin/test-zcz-opt`
-`bin/test-zcz-ref`
+- `bin/test-deoxysbc`
+- `bin/test-zcz-opt`
+- `bin/test-zcz-ref`
 
 For benchmarking:
 
-`bin/benchmark-deoxysbc`
-`bin/benchmark-zcz`
+- `bin/benchmark-deoxysbc`
+- `bin/benchmark-zcz`
 
 For linting:
 
-`make lint' for all of the following:
-`make lint-opt`
-`make lint-ref`
-`make lint-shared`
+- `make lint' for all of the following:
+- `make lint-opt`
+- `make lint-ref`
+- `make lint-shared`
 
