@@ -76,7 +76,6 @@ find_package(GTest REQUIRED)
 # ----------------------------------------------------------
 
 # Add executables
-add_executable(test-deoxysbc-original ${PROJECT_TESTS_DIR}/test-deoxysbc-original ${REF_SOURCES} ${SHARED_SOURCES})
 add_executable(test-deoxysbc-ref ${PROJECT_TESTS_DIR}/test-deoxysbc-ref ${REF_SOURCES} ${SHARED_SOURCES})
 add_executable(test-gfdoubling-ref ${PROJECT_TESTS_DIR}/test-gfdoubling-ref ${REF_SOURCES} ${SHARED_SOURCES})
 add_executable(test-zcz-ref ${PROJECT_TESTS_DIR}/test-zcz ${REF_SOURCES} ${SHARED_SOURCES})
@@ -84,13 +83,11 @@ add_executable(test-zcz-ref ${PROJECT_TESTS_DIR}/test-zcz ${REF_SOURCES} ${SHARE
 # Include directories
 set(REF_INCLUDE_DIRECTORIES ${PROJECT_REF_DIR} ${PROJECT_SHARED_DIR})
 
-target_include_directories(test-deoxysbc-original PUBLIC ${REF_INCLUDE_DIRECTORIES})
 target_include_directories(test-deoxysbc-ref PUBLIC ${REF_INCLUDE_DIRECTORIES})
 target_include_directories(test-gfdoubling-ref PUBLIC ${REF_INCLUDE_DIRECTORIES})
 target_include_directories(test-zcz-ref PUBLIC ${REF_INCLUDE_DIRECTORIES})
 
 # Link
-target_link_libraries(test-deoxysbc-original Threads::Threads gtest gtest_main jsoncpp)
 target_link_libraries(test-deoxysbc-ref Threads::Threads gtest gtest_main jsoncpp)
 target_link_libraries(test-zcz-ref Threads::Threads gtest gtest_main jsoncpp)
 target_link_libraries(test-gfdoubling-ref Threads::Threads gtest gtest_main jsoncpp)
