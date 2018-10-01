@@ -182,16 +182,6 @@ static const unsigned char RCON[17] = {
 } while (0)
 
 // ---------------------------------------------------------------------
-// SB, SR
-// MC^{-1}, SB^{-1}, SR^{-1}
-// ---------------------------------------------------------------------
-
-#define aes_invert_mix_columns(source, dest, zero) do {\
-    dest = vaesenclast(source, zero);\
-    dest = vaesdec(dest, zero);\
-} while (0)
-
-// ---------------------------------------------------------------------
 // Macros on four blocks in parallel
 // ---------------------------------------------------------------------
 
@@ -253,15 +243,11 @@ static const unsigned char RCON[17] = {
 
 // ---------------------------------------------------------------------
 
-#define aes_invert_mix_columns_four(states, zero) do {\
-    states[0] = vaesenclast(states[0], zero);\
-    states[1] = vaesenclast(states[1], zero);\
-    states[2] = vaesenclast(states[2], zero);\
-    states[3] = vaesenclast(states[3], zero);\
-    states[0] = vaesdec(states[0], zero);\
-    states[1] = vaesdec(states[1], zero);\
-    states[2] = vaesdec(states[2], zero);\
-    states[3] = vaesdec(states[3], zero);\
+#define vinversemc_four(states) do {\
+    states[0] = vinversemc(states[0]); \
+    states[1] = vinversemc(states[1]); \
+    states[2] = vinversemc(states[2]); \
+    states[3] = vinversemc(states[3]); \
 } while (0)
 
 // ---------------------------------------------------------------------
@@ -474,7 +460,7 @@ static const unsigned char RCON[17] = {
     combine_avx_two(avx_round_tweaks, tweak_blocks, counters[j]); \
     permute_avx_two(avx_round_tweaks, i); \
     unpack_two(avx_round_tweaks, round_tweaks); \
-    aes_invert_mix_columns_four(round_tweaks, vzero); \
+    vinversemc_four(round_tweaks); \
     deoxys_dec_round_four(states, round_tweaks, round_keys[j]);\
 } while (0)
 
@@ -485,7 +471,7 @@ static const unsigned char RCON[17] = {
     round_tweaks, states, round_keys, i) do {\
     combine_avx_two(avx_round_tweaks, tweak_blocks, counters[i]); \
     unpack_two(avx_round_tweaks, round_tweaks); \
-    aes_invert_mix_columns_four(round_tweaks, vzero); \
+    vinversemc_four(round_tweaks); \
     deoxys_dec_round_four(states, round_tweaks, round_keys[i]);\
 } while (0)
 
@@ -985,9 +971,7 @@ void deoxys_bc_128_384_setup_decryption_key(deoxys_bc_128_384_ctx_t* ctx) {
     ctx->decryption_keys[0] = ctx->round_keys[0];
 
     for (size_t i = 1; i < DEOXYS_BC_128_384_NUM_ROUNDS; ++i) {
-        aes_invert_mix_columns(ctx->round_keys[i],
-                               ctx->decryption_keys[i],
-                               vzero);
+        ctx->decryption_keys[i] = vinversemc(ctx->round_keys[i]);
     }
 
     ctx->decryption_keys[DEOXYS_BC_128_384_NUM_ROUNDS]
@@ -1050,7 +1034,7 @@ void deoxys_bc_128_384_setup_base_counters(deoxys_bc_128_384_ctx_t* ctx,
                ctx->base_counters[DEOXYS_BC_128_384_NUM_ROUNDS]);
 
     for (size_t i = 1; i < DEOXYS_BC_128_384_NUM_ROUNDS; ++i) {
-        aes_invert_mix_columns(ctx->base_counters[i], tmp, vzero);
+        tmp = vinversemc(ctx->base_counters[i]);
         ctx->combined_decryption_keys[i] = vxor(ctx->decryption_keys[i], tmp);
     }
 }
@@ -1102,10 +1086,8 @@ static void deoxys_bc_128_384_setup_decryption_tweak(
                                   tweak_counter,
                                   tweak_block);
 
-    const __m128i zero = vzero;
-
     for (size_t i = 1; i < DEOXYS_BC_128_384_NUM_ROUNDS; ++i) {
-        aes_invert_mix_columns(round_tweaks[i], round_tweaks[i], zero);
+        round_tweaks[i] = vinversemc(round_tweaks[i]);
     }
 }
 
@@ -1373,8 +1355,7 @@ static __m128i deoxys_bc_128_decrypt(const __m128i* round_keys,
                           round_tweaks[num_rounds],
                           round_keys[num_rounds]);
 
-    const __m128i zero = vzero;
-    aes_invert_mix_columns(state, state, zero);
+    state = vinversemc(state);
 
     for (size_t i = num_rounds - 1; i > 0; --i) {
         state = vaesdec(state, vxor(round_keys[i], round_tweaks[i]));
@@ -1426,7 +1407,7 @@ void deoxys_bc_128_384_decrypt_four(deoxys_bc_128_384_ctx_t* ctx,
     vxor_four(ctx->round_tweaks, states, states);
     vxor_four_same(states,
                    ctx->combined_decryption_keys[DEOXYS_BC_128_384_NUM_ROUNDS]);
-    aes_invert_mix_columns_four(states, vzero);
+    vinversemc_four(states);
 
     update_invround_four_invmc(avx_round_tweaks, tweak_blocks, avx_counters,
                                ctx->round_tweaks, states,
