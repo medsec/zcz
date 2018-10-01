@@ -1,6 +1,6 @@
 # Reference and Optimized C/C++ Implementations of ZCZ with Deoxys-BC-128-384.
 
-See [BLN18][the ZCZ paper] and [JNP14][the TWEAKEY paper for Deoxys-BC].
+See the ZCZ paper [BLN18] and the TWEAKEY paper for Deoxys-BC [JNP14].
 
 ## Contents
 
