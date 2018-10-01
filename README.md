@@ -34,47 +34,68 @@ WARRANTY OF ANY KIND,
 
 ## Dependencies
 
+- cmake
+
 - Google Test: Unit testing 
 
 - JsonCPP: For reading unit testing 
 
 - Make for compilation
 
-- clang-format and clang-tidy if desired
-
-- clang-sanitizers if desired
-
 The optimized version requires available AES-NI (new instructions) that
 are available on many modern processors (Intel i5 since Westmere, AMD
 since Bulldozer). 
 
 ## Compilation
-If make is known, run
 
-`make'
+If cmake is installed, run
 
-or, mostly, it suffices to run
+`cmake .`.
 
-- `test-deoxys-ref`
+Afterwards, you can run `make <target>` with `<target>` is among:
+
+- `test-deoxysbc-ref`
+- `test-deoxysbc-opt`
+- `test-gfdoubling-ref`
+- `test-gfdoubling-opt`
 - `test-zcz-ref`
-- `test-deoxys-opt`
 - `test-zcz-opt`
-- `benchmark`
+- `benchmark-deoxysbc`
+- `benchmark-zcz`
 
-For testing:
+### Testing
 
-- `bin/test-deoxysbc`
-- `bin/test-zcz-opt`
-- `bin/test-zcz-ref`
+After building, you can find testing scripts in `bin`:
 
-For benchmarking:
+- `test-deoxysbc-ref`
+- `test-deoxysbc-opt`
+- `test-gfdoubling-ref`
+- `test-gfdoubling-opt`
+- `test-zcz-ref`
+- `test-zcz-opt`
+
+You can find the test cases in the `testdata` directory.
+
+### Benchmarking
+
+After building, you can find benchmark scripts in `bin`:
 
 - `bin/benchmark-deoxysbc`
 - `bin/benchmark-zcz`
 
-For linting:
+You can find a set of useful scripts for proper benchmarking. After reading
+them, run with sudo privileges on your own risk.
 
-- `make lint' for all of the following:
+- `scripts/disablehyperthreading.sh`
+- `scripts/powerpolicy.sh ondemand`
+- `scripts/turboboost.sh off`
+
+Those can disable hyper-threading and load-based tuning of the processor
+frequency to yield more reliable benchmarking results.
+
+### Linting:
+
+- `make lint` for all of the following:
 - `make lint-opt`
 - `make lint-ref`
 - `make lint-shared`

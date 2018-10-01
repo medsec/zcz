@@ -1,5 +1,6 @@
-#!/bin/sh
-# stolen from https://github.com/DropD/fnc-simplex/blob/master/linux_turboboost.sh
+#!/bin/sh 
+# Borrowed from
+# https://github.com/DropD/fnc-simplex/blob/master/linux_turboboost.sh
 
 # you might need to run sudo apt-get install msr-tools
 # Toggle Turbo Boost for Ivy Bridge CPUs (should work for all newer Core)
