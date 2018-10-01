@@ -1,4 +1,5 @@
 # Reference and Optimized C/C++ Implementations of ZCZ with Deoxys-BC-128-384.
+See [BLN18] and [JNP14].
 
 ## Contents
 
@@ -50,7 +51,7 @@ since Bulldozer).
 
 If cmake is installed, run
 
-`cmake .`.
+`cmake .`
 
 Afterwards, you can run `make <target>` with `<target>` is among:
 
@@ -65,20 +66,12 @@ Afterwards, you can run `make <target>` with `<target>` is among:
 
 ### Testing
 
-After building, you can find testing scripts in `bin`:
-
-- `test-deoxysbc-ref`
-- `test-deoxysbc-opt`
-- `test-gfdoubling-ref`
-- `test-gfdoubling-opt`
-- `test-zcz-ref`
-- `test-zcz-opt`
-
+After building, you can find testing scripts in `bin`.
 You can find the test cases in the `testdata` directory.
 
 ### Benchmarking
 
-After building, you can find benchmark scripts in `bin`:
+After building, you can also find two benchmarking executables in `bin`:
 
 - `bin/benchmark-deoxysbc`
 - `bin/benchmark-zcz`
@@ -99,4 +92,10 @@ frequency to yield more reliable benchmarking results.
 - `make lint-opt`
 - `make lint-ref`
 - `make lint-shared`
+
+# References
+
+
+[BLN18] Ritam Bhaumik and Eik List and Mridul Nandi: ZCZ - Achieving n-bit SPRP Security with a Minimal Number of Tweakable-block-cipher Calls. IACR ePrint report 2018, https://eprint.iacr.org/2018/819.
+[JNP14] Jérémy Jean and Ivica Nikolić and Thomas Peyrin: Tweaks and Keys for Block Ciphers: the TWEAKEY Framework. ASIACRYPT 2014, full version at https://eprint.iacr.org/2014/831.
 
