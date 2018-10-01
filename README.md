@@ -1,5 +1,6 @@
 # Reference and Optimized C/C++ Implementations of ZCZ with Deoxys-BC-128-384.
-See [BLN18] and [JNP14].
+
+See [BLN18][the ZCZ paper] and [JNP14][the TWEAKEY paper for Deoxys-BC].
 
 ## Contents
 
@@ -95,7 +96,6 @@ frequency to yield more reliable benchmarking results.
 
 # References
 
-
-[BLN18] Ritam Bhaumik and Eik List and Mridul Nandi: ZCZ - Achieving n-bit SPRP Security with a Minimal Number of Tweakable-block-cipher Calls. IACR ePrint report 2018, https://eprint.iacr.org/2018/819.
-[JNP14] Jérémy Jean and Ivica Nikolić and Thomas Peyrin: Tweaks and Keys for Block Ciphers: the TWEAKEY Framework. ASIACRYPT 2014, full version at https://eprint.iacr.org/2014/831.
+- [BLN18] Ritam Bhaumik and Eik List and Mridul Nandi: ZCZ - Achieving n-bit SPRP Security with a Minimal Number of Tweakable-block-cipher Calls. IACR ePrint report 2018, https://eprint.iacr.org/2018/819.
+- [JNP14] Jérémy Jean and Ivica Nikolić and Thomas Peyrin: Tweaks and Keys for Block Ciphers: the TWEAKEY Framework. ASIACRYPT 2014, full version at https://eprint.iacr.org/2014/831.
 
