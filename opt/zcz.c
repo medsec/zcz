@@ -93,8 +93,7 @@ static void pad_message(uint8_t* target,
                         const size_t num_source_bytes,
                         const size_t num_target_bytes) {
     if (num_target_bytes <= num_source_bytes) {
-        // TODO(me): Should throw exception if the array
-        // to be padded has no space for any padding.
+        puts("[FATAL] Cannot pad message");
         return;
     }
 
@@ -389,8 +388,6 @@ static void encrypt_middle_layer(zcz_ctx_t* ctx,
                                   ctx->s,
                                   &s_i);
 
-        // print_hex_128("s_i", s_i);
-
         size_t num_di_blocks_in_chunk = ZCZ_NUM_DI_BLOCKS_IN_CHUNK;
 
         if ((i + 1) == num_chunks) {
@@ -422,12 +419,6 @@ static void encrypt_middle_layer(zcz_ctx_t* ctx,
             vxor_eight(z_i_j, y_i, y_i);
             vxor_eight_same_x(s_i, y_i, y_i);  // Y_i = R_i xor S_i xor Z_{i,j}
 
-            // for (int i = 0; i < 8; ++i) {
-            //     print_hex_128("z_i_j", z_i_j[i]);
-            //     print_hex_128("L'   ", x_i[i]);
-            //     print_hex_128("Y    ", y_i[i]);
-            // }
-
             // Copy the values X_i to the buffer
             store_eight_blocks(target_position, x_i);        // Copy the X_i's
             store_eight_blocks((target_position + 1), y_i);  // Copy the Y_i's
@@ -438,9 +429,6 @@ static void encrypt_middle_layer(zcz_ctx_t* ctx,
             // Update Y_L = Y_i xor L'_i
             vxor_eight(x_i, y_i, y_i);
             y_l = gf_2_128_times_four_eight(y_l, y_i);
-
-            // print_hex_128("Y_l new", y_l);
-            // print_hex_128("Y_r new", y_r);
 
             k += ZCZ_NUM_DI_BLOCKS_PER_SEQUENCE;
             num_di_blocks_in_chunk -= ZCZ_NUM_DI_BLOCKS_PER_SEQUENCE;  // Used 8
@@ -474,10 +462,6 @@ static void encrypt_middle_layer(zcz_ctx_t* ctx,
             store(target_position, l_i);
             store((target_position + 1), y_i[0]);
 
-            // print_hex_128("z_i_j", z_i_j[0]);
-            // print_hex_128("L'   ", l_i);
-            // print_hex_128("Y    ", y_i[0]);
-
             // Update Y_L
             gf_2_128_times_four(y_l, y_l, tmp);
             y_l = vxor3(y_l, y_i[0], l_i);
@@ -485,9 +469,6 @@ static void encrypt_middle_layer(zcz_ctx_t* ctx,
             // Update Y_R
             gf_2_128_double(y_r, y_r, tmp);
             y_r = vxor(y_r, y_i[0]);
-
-            // print_hex_128("Y_l new", y_l);
-            // print_hex_128("Y_r new", y_r);
 
             source_position += ZCZ_NUM_BLOCKS_IN_DI_BLOCK;
             target_position += ZCZ_NUM_BLOCKS_IN_DI_BLOCK;
@@ -501,9 +482,6 @@ static void encrypt_middle_layer(zcz_ctx_t* ctx,
     // Note: This destroys the previous round tweaks
     // ---------------------------------------------------------------------
 
-    // print_hex_128("Y_l sum", y_l);
-    // print_hex_128("Y_r sum", y_r);
-
     deoxys_bc_128_384_encrypt(cipher_ctx,
                               ZCZ_DOMAIN_YL,
                               num_di_blocks,
@@ -516,9 +494,6 @@ static void encrypt_middle_layer(zcz_ctx_t* ctx,
                               y_l,
                               y_r,
                               &(ctx->y_r));
-
-    // print_hex_128("Y_L", ctx->y_l);
-    // print_hex_128("Y_R", ctx->y_r);
 }
 
 // ---------------------------------------------------------------------
@@ -652,12 +627,6 @@ static void encrypt_last_di_block_bottom(zcz_ctx_t* ctx,
 
     storeu(left_ciphertext_block, left_output_block);
     storeu(right_ciphertext_block, right_output_block);
-
-    // print_hex_128("Y_L", ctx->y_l);
-    // print_hex_128("Y_R", ctx->y_r);
-
-    // print_hex_128("L'_l", left_output_block);
-    // print_hex_128("R'_l", right_output_block);
 }
 
 // ---------------------------------------------------------------------

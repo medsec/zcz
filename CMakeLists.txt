@@ -28,6 +28,7 @@ file(GLOB REF_SOURCES "${PROJECT_REF_DIR}/*.c" "${PROJECT_REF_DIR}/*.h")
 file(GLOB OPT_SOURCES "${PROJECT_OPT_DIR}/*.c" "${PROJECT_OPT_DIR}/*.h")
 file(GLOB SHARED_SOURCES "${PROJECT_SHARED_DIR}/*.c" "${PROJECT_SHARED_DIR}/*.h" "${PROJECT_SHARED_DIR}/json_parser.cpp" "${PROJECT_SHARED_DIR}/memutils.cpp")
 file(GLOB SHARED_SOURCES_WO_UTILS "${PROJECT_SHARED_DIR}/benchmark.c" "${PROJECT_SHARED_DIR}/json_parser.cpp" "${PROJECT_SHARED_DIR}/memutils.cpp" "${PROJECT_SHARED_DIR}/align.h" "${PROJECT_SHARED_DIR}/benchmark.h" "${PROJECT_SHARED_DIR}/deoxysbc_opt_test_case_context.h" "${PROJECT_SHARED_DIR}/gf_doubling_test_case_context.h" "${PROJECT_SHARED_DIR}/json_parser.h" "${PROJECT_SHARED_DIR}/memutils.h" "${PROJECT_SHARED_DIR}/zcz_test_case_context.h")
+file(GLOB BENCHMARK_SOURCES "${PROJECT_SHARED_DIR}/benchmark.c" "${PROJECT_SHARED_DIR}/memutils.cpp" "${PROJECT_SHARED_DIR}/align.h" "${PROJECT_SHARED_DIR}/benchmark.h" "${PROJECT_SHARED_DIR}/deoxysbc_opt_test_case_context.h" "${PROJECT_SHARED_DIR}/memutils.h")
 
 # Stores all executables in src folder into variable SOURCES
 file(GLOB TESTS "${PROJECT_TESTS_DIR}/*.cpp")
@@ -76,6 +77,7 @@ find_package(GTest REQUIRED)
 # ----------------------------------------------------------
 
 # Add executables
+add_executable(test-deoxysbc-original ${PROJECT_TESTS_DIR}/test-deoxysbc-original ${REF_SOURCES} ${SHARED_SOURCES})
 add_executable(test-deoxysbc-ref ${PROJECT_TESTS_DIR}/test-deoxysbc-ref ${REF_SOURCES} ${SHARED_SOURCES})
 add_executable(test-gfdoubling-ref ${PROJECT_TESTS_DIR}/test-gfdoubling-ref ${REF_SOURCES} ${SHARED_SOURCES})
 add_executable(test-zcz-ref ${PROJECT_TESTS_DIR}/test-zcz ${REF_SOURCES} ${SHARED_SOURCES})
@@ -83,11 +85,13 @@ add_executable(test-zcz-ref ${PROJECT_TESTS_DIR}/test-zcz ${REF_SOURCES} ${SHARE
 # Include directories
 set(REF_INCLUDE_DIRECTORIES ${PROJECT_REF_DIR} ${PROJECT_SHARED_DIR})
 
+target_include_directories(test-deoxysbc-original PUBLIC ${REF_INCLUDE_DIRECTORIES})
 target_include_directories(test-deoxysbc-ref PUBLIC ${REF_INCLUDE_DIRECTORIES})
 target_include_directories(test-gfdoubling-ref PUBLIC ${REF_INCLUDE_DIRECTORIES})
 target_include_directories(test-zcz-ref PUBLIC ${REF_INCLUDE_DIRECTORIES})
 
 # Link
+target_link_libraries(test-deoxysbc-original Threads::Threads gtest gtest_main jsoncpp)
 target_link_libraries(test-deoxysbc-ref Threads::Threads gtest gtest_main jsoncpp)
 target_link_libraries(test-zcz-ref Threads::Threads gtest gtest_main jsoncpp)
 target_link_libraries(test-gfdoubling-ref Threads::Threads gtest gtest_main jsoncpp)
@@ -97,8 +101,8 @@ target_link_libraries(test-gfdoubling-ref Threads::Threads gtest gtest_main json
 # ----------------------------------------------------------
 
 # Add executables
-add_executable(benchmark-deoxysbc ${PROJECT_SHARED_DIR}/benchmark-deoxysbc ${OPT_SOURCES} ${SHARED_SOURCES_WO_UTILS})
-add_executable(benchmark-zcz ${PROJECT_SHARED_DIR}/benchmark-zcz ${OPT_SOURCES} ${SHARED_SOURCES_WO_UTILS})
+add_executable(benchmark-deoxysbc ${PROJECT_SHARED_DIR}/benchmark-deoxysbc ${OPT_SOURCES} ${BENCHMARK_SOURCES})
+add_executable(benchmark-zcz ${PROJECT_SHARED_DIR}/benchmark-zcz ${OPT_SOURCES} ${BENCHMARK_SOURCES})
 add_executable(test-deoxysbc-opt ${PROJECT_TESTS_DIR}/test-deoxysbc-opt ${OPT_SOURCES} ${SHARED_SOURCES_WO_UTILS})
 add_executable(test-zcz-opt ${PROJECT_TESTS_DIR}/test-zcz ${OPT_SOURCES} ${SHARED_SOURCES_WO_UTILS})
 add_executable(test-gfdoubling-opt ${PROJECT_TESTS_DIR}/test-gfdoubling-opt ${OPT_SOURCES} ${SHARED_SOURCES_WO_UTILS})
@@ -120,8 +124,6 @@ target_compile_options(test-zcz-opt PRIVATE "-DNI_ENABLED")
 target_compile_options(test-gfdoubling-opt PRIVATE "-DNI_ENABLED")
 
 # Link
-target_link_libraries(benchmark-deoxysbc jsoncpp)
-target_link_libraries(benchmark-zcz jsoncpp)
 target_link_libraries(test-deoxysbc-opt Threads::Threads gtest gtest_main jsoncpp)
 target_link_libraries(test-zcz-opt Threads::Threads gtest gtest_main jsoncpp)
 target_link_libraries(test-gfdoubling-opt Threads::Threads gtest gtest_main jsoncpp)
@@ -159,45 +161,3 @@ add_custom_target(
     --root=.
     ${PROJECT_SHARED_DIR}/*
 )
-
-# # Check
-# add_custom_target(
-#     clang-check
-#     COMMAND /usr/bin/clang-check
-#     ${SOURCES}
-#     --
-#     -I${INCLUDE_DIRECTORIES}
-#     -std=c++11
-# )
-
-# add_custom_target(
-#     cppcheck
-#     COMMAND cppcheck
-#     --enable=warning,performance,portability,information,missingInclude
-#     --std=c++11
-#     --library=qt.cfg
-#     --template="[{severity}][{id}] {message} {callstack} \(On {file}:{line}\)"
-#     --verbose
-#     --quiet
-#     ${PROJECT_REF_DIR}
-# )
-
-# # Tidy
-# add_custom_target(
-#     clang-tidy
-#     COMMAND /usr/bin/clang-tidy
-#     ${SOURCES}
-#     --
-#     -std=c++11
-#     -I${REF_SOURCES} ${SHARED_SOURCES} ${OPT_SOURCES}
-# )
-
-# # Format
-# add_custom_target(
-#     clang-format
-#     COMMAND /usr/bin/clang-format
-#     -style=file
-#     -i
-#     ${SOURCES}
-#     -I${INCLUDE_DIRECTORIES}
-# )

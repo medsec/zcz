@@ -100,16 +100,6 @@ typedef struct {
 // Public API
 // ---------------------------------------------------------------------
 
-void deoxys_bc_128_128_setup_key(deoxys_bc_128_128_ctx_t* ctx,
-                                 const deoxys_bc_key_t key);
-
-// ---------------------------------------------------------------------
-
-void deoxys_bc_128_256_setup_key(deoxys_bc_128_256_ctx_t* ctx,
-                                 const deoxys_bc_key_t key);
-
-// ---------------------------------------------------------------------
-
 void deoxys_bc_128_384_setup_key(deoxys_bc_128_384_ctx_t* ctx,
                                  const deoxys_bc_key_t key);
 
@@ -125,21 +115,6 @@ void deoxys_bc_128_384_setup_base_counters(deoxys_bc_128_384_ctx_t* ctx,
 
 // ---------------------------------------------------------------------
 // Encryption
-// ---------------------------------------------------------------------
-
-void deoxys_bc_128_128_encrypt(deoxys_bc_128_128_ctx_t* ctx,
-                               const deoxys_bc_key_t key,
-                               const deoxys_bc_block_t plaintext,
-                               deoxys_bc_block_t* ciphertext);
-
-// ---------------------------------------------------------------------
-
-void deoxys_bc_128_256_encrypt(deoxys_bc_128_256_ctx_t* ctx,
-                               const deoxys_bc_key_t key,
-                               const deoxys_bc_128_256_tweak_t tweak,
-                               const deoxys_bc_block_t plaintext,
-                               deoxys_bc_block_t* ciphertext);
-
 // ---------------------------------------------------------------------
 
 void deoxys_bc_128_384_encrypt(deoxys_bc_128_384_ctx_t* ctx,
@@ -185,21 +160,6 @@ void deoxys_bc_128_384_encrypt_eight_one(deoxys_bc_128_384_ctx_t* ctx,
 
 // ---------------------------------------------------------------------
 // Decryption
-// ---------------------------------------------------------------------
-
-void deoxys_bc_128_128_decrypt(deoxys_bc_128_128_ctx_t* ctx,
-                               const deoxys_bc_key_t key,
-                               const deoxys_bc_block_t ciphertext,
-                               deoxys_bc_block_t plaintext);
-
-// ---------------------------------------------------------------------
-
-void deoxys_bc_128_256_decrypt(deoxys_bc_128_256_ctx_t* ctx,
-                               const deoxys_bc_key_t key,
-                               const deoxys_bc_128_256_tweak_t tweak,
-                               const deoxys_bc_block_t ciphertext,
-                               deoxys_bc_block_t plaintext);
-
 // ---------------------------------------------------------------------
 
 void deoxys_bc_128_384_decrypt(deoxys_bc_128_384_ctx_t* ctx,

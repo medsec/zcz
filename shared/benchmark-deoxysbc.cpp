@@ -83,12 +83,15 @@ static void initialize(benchmark_ctx_t* context, const size_t max_num_bytes) {
 
     __m128i key = load(context->key);
     deoxys_bc_128_384_setup_key(&(context->ctx), key);
-
     context->plaintext = (uint8_t*)malloc(max_num_bytes);
     context->ciphertext = (uint8_t*)malloc(max_num_bytes);
     context->tweak = (uint8_t*)malloc(max_num_bytes);
     context->tweak_counter = 1;
     context->tweak_domain = 2;
+
+    deoxys_bc_128_384_setup_base_counters(&(context->ctx),
+                                          context->tweak_domain,
+                                          context->tweak_counter);
 
     fill(context->plaintext, max_num_bytes);
     fill(context->tweak, max_num_bytes);
@@ -119,7 +122,6 @@ static void run_operation(benchmark_ctx_t* context,
         avx_load_four(tweaks, tweak_position);
 
         deoxys_bc_128_384_encrypt_eight(&(context->ctx),
-                                       context->tweak_domain,
                                        context->tweak_counter,
                                        tweaks,
                                        states);
@@ -179,12 +181,9 @@ static int benchmark() {
 
     puts("#Bytes cpb");
 
-    for (size_t j = 0; j < NUM_MESSAGE_LENGTHS; ++j) {
-        for (size_t i = 0; i < NUM_ITERATIONS / 4; ++i) {
-            num_plaintext_bytes = MESSAGE_LENGTHS[j];
-
-            run_operation(&ctx, num_plaintext_bytes, tweaks, states);
-        }
+    for (size_t i = 0; i < NUM_ITERATIONS / 4; ++i) {
+        num_plaintext_bytes = 2048;
+        run_operation(&ctx, num_plaintext_bytes, tweaks, states);
     }
 
     double timings[NUM_ITERATIONS];

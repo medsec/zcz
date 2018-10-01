@@ -18,3 +18,5 @@ results
 bak
 zcz.sublime-workspace
 zcz.sublime-project
+ref/foo.*
+tests/test-deoxysbc-original.cpp

@@ -170,7 +170,6 @@ static void test_deoxysbc_128_384_ecb_encryption(const std::string& json_path) {
         avx_load_four(tweaks, tweak_position);
 
         deoxys_bc_128_384_encrypt_eight(&ctx,
-                                       context.get_tweak_domain(),
                                        tweak_counter,
                                        tweaks,
                                        states);
@@ -188,7 +187,6 @@ static void test_deoxysbc_128_384_ecb_encryption(const std::string& json_path) {
         avx_load_two(tweaks, tweak_position);
 
         deoxys_bc_128_384_encrypt_four(&ctx,
-                                        context.get_tweak_domain(),
                                         tweak_counter,
                                         tweaks,
                                         states);
@@ -263,7 +261,6 @@ static void test_deoxysbc_128_384_ecb_decryption(const std::string& json_path) {
         avx_load_four(tweaks, tweak_position);
 
         deoxys_bc_128_384_decrypt_eight(&ctx,
-                                       context.get_tweak_domain(),
                                        tweak_counter,
                                        tweaks,
                                        states);
@@ -281,7 +278,6 @@ static void test_deoxysbc_128_384_ecb_decryption(const std::string& json_path) {
         avx_load_two(tweaks, tweak_position);
 
         deoxys_bc_128_384_decrypt_four(&ctx,
-                                        context.get_tweak_domain(),
                                         tweak_counter,
                                         tweaks,
                                         states);

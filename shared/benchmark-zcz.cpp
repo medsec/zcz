@@ -97,8 +97,7 @@ static void run_operation(benchmark_ctx_t* context,
     uint8_t* plaintext = context->plaintext;
     uint8_t* ciphertext = context->ciphertext;
 
-    zcz_ctx_t* ctx = &(context->ctx);
-    zcz_encrypt(ctx, plaintext, num_plaintext_bytes, ciphertext);
+    zcz_encrypt(&(context->ctx), plaintext, num_plaintext_bytes, ciphertext);
 }
 
 // ---------------------------------------------------------------------
@@ -122,11 +121,9 @@ static int benchmark() {
 
     puts("#Bytes cpb");
 
-    for (size_t j = 0; j < NUM_MESSAGE_LENGTHS; ++j) {
-        for (size_t i = 0; i < NUM_ITERATIONS / 4; ++i) {
-            num_plaintext_bytes = MESSAGE_LENGTHS[j];
-            run_operation(&ctx, num_plaintext_bytes);
-        }
+    for (size_t i = 0; i < NUM_ITERATIONS / 4; ++i) {
+        num_plaintext_bytes = 2048;
+        run_operation(&ctx, num_plaintext_bytes);
     }
 
     double timings[NUM_ITERATIONS];
@@ -142,6 +139,7 @@ static int benchmark() {
         j <= MAX_NUM_BYTES_CONTINUOUS;
         j += NUM_BYTES_PER_INTERVAL) {
         num_plaintext_bytes = j;
+
         t0 = get_time();
         t1 = get_time();
 

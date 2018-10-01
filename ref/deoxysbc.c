@@ -41,12 +41,12 @@
 // ---------------------------------------------------------------------
 
 static const deoxys_bc_block_t H_PERMUTATION = {
-        7, 0, 13, 10, 11, 4, 1, 14, 15, 8, 5, 2, 3, 12, 9, 6
+    7, 0, 13, 10, 11, 4, 1, 14, 15, 8, 5, 2, 3, 12, 9, 6
 };
 static const unsigned char RCON[17] = {
-        0x2f, 0x5e, 0xbc, 0x63, 0xc6, 0x97, 0x35, 0x6a,
-        0xd4, 0xb3, 0x7d, 0xfa, 0xef, 0xc5, 0x91, 0x39,
-        0x72
+    0x2f, 0x5e, 0xbc, 0x63, 0xc6, 0x97, 0x35, 0x6a,
+    0xd4, 0xb3, 0x7d, 0xfa, 0xef, 0xc5, 0x91, 0x39,
+    0x72
 };
 
 // ---------------------------------------------------------------------
@@ -228,16 +228,12 @@ void deoxys_bc_128_384_setup_key(deoxys_bc_128_384_ctx_t *ctx,
     deoxys_bc_block_t *subkeys = ctx->encryption_key;
     memcpy(&(subkeys[0]), key, DEOXYS_BC_BLOCKLEN);
 
-    // print_hex("TK3[0]      ", subkeys[0], 16);
-
     for (size_t i = 0; i < num_rounds; ++i) {
         lfsr_three(subkeys[i + 1], subkeys[i]);
         permute_tweak(subkeys[i + 1]);
     }
 
     add_round_constants(subkeys, num_rounds);
-
-    // print_hex("TK3[0] w/ RC", subkeys[0], 16);
 
     // ---------------------------------------------------------------------
     // Expand tweak
@@ -248,9 +244,6 @@ void deoxys_bc_128_384_setup_key(deoxys_bc_128_384_ctx_t *ctx,
 
     memcpy(subtweak1, tweak, DEOXYS_BC_BLOCKLEN);
     memcpy(subtweak2, tweak + DEOXYS_BC_BLOCKLEN, DEOXYS_BC_BLOCKLEN);
-
-    // print_hex("TK1[0]      ", subtweak1, 16);
-    // print_hex("TK2[0]      ", subtweak2, 16);
 
     xor_block(subkeys[0], subkeys[0], subtweak1);
     xor_block(subkeys[0], subkeys[0], subtweak2);
@@ -325,31 +318,11 @@ void deoxys_bc_128_384_encrypt(deoxys_bc_128_384_ctx_t *ctx,
     deoxys_bc_block_t state;
     xor_block(state, plaintext, ctx->encryption_key[0]);
 
-#ifdef DEBUG
-    print_hex(" 0 plain", plaintext, 16);
-    print_hex(" 0 state", state, 16);
-    print_hex(" 0 tk   ", ctx->encryption_key[0], 16);
-#endif
-
     for (size_t i = 1; i < num_rounds; ++i) {
         aes_encrypt_round(state, state, ctx->encryption_key[i]);
-
-#ifdef DEBUG
-        printf("%2zu ", i);
-        print_hex("state", state, 16);
-        printf("%2zu ", i);
-        print_hex("tk   ", ctx->encryption_key[i], 16);
-#endif
     }
 
     aes_encrypt_round(state, ciphertext, ctx->encryption_key[num_rounds]);
-
-#ifdef DEBUG
-    printf("%2zu ", num_rounds);
-    print_hex("state", ciphertext, 16);
-    printf("%2zu ", num_rounds);
-    print_hex(" tk  ", ctx->encryption_key[num_rounds], 16);
-#endif
 }
 
 // ---------------------------------------------------------------------
@@ -410,39 +383,12 @@ void deoxys_bc_128_384_decrypt(deoxys_bc_128_384_ctx_t *ctx,
     deoxys_bc_block_t state;
 
     xor_block(state, ciphertext, ctx->decryption_key[num_rounds]);
-
-#ifdef DEBUG
-    print_hex("16 cipher", ciphertext, 16);
-    print_hex("16 deckey", ctx->decryption_key[num_rounds], 16);
-    print_hex("16 state ", state, 16);
-#endif
-
     aes_invert_mix_columns(state);
 
     for (size_t i = num_rounds - 1; i > 0; --i) {
         aes_decrypt_round(state, state, ctx->decryption_key[i]);
-
-#ifdef DEBUG
-        printf("%2zu", i);
-        print_hex(" state ", state, 16);
-        printf("%2zu", i);
-        print_hex(" deckey", ctx->decryption_key[i], 16);
-#endif
     }
 
     aes_decrypt_round(state, plaintext, ctx->decryption_key[0]);
-
-#ifdef DEBUG
-    printf("%2d ", -1);
-    print_hex(" state ", plaintext, 16);
-    printf("%2d ", -1);
-    print_hex(" deckey", ctx->decryption_key[0], 16);
-#endif
-
     aes_mix_columns(plaintext);
-
-#ifdef DEBUG
-    printf("%2d", 0);
-    print_hex(" plain ", plaintext, 16);
-#endif
 }

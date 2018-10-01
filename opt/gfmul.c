@@ -69,7 +69,7 @@ __m128i gf_2_128_double_eight(__m128i hash, __m128i x[8]) {
     // ---------------------------------------------------------------------
     // sum = sum_high || sum_low
     // We have to take sum_high * 135 and XOR it to our XOR sum to have the
-    // Reduction term.
+    // Reduction term. The 0x01 indicates that sum_high is used.
     // ---------------------------------------------------------------------
 
     __m128i mod = clmul(sum, REDUCTION_POLYNOMIAL, 0x01);
@@ -112,7 +112,7 @@ __m128i gf_2_128_times_four_eight(__m128i hash, __m128i x[8]) {
     // ---------------------------------------------------------------------
     // sum = sum_high || sum_low
     // We have to take sum_high * 135 and XOR it to our XOR sum to have the
-    // Reduction term.
+    // Reduction term. The 0x01 indicates that sum_high is used.
     // ---------------------------------------------------------------------
 
     __m128i mod = clmul(sum, REDUCTION_POLYNOMIAL, 0x01);

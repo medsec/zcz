@@ -654,7 +654,7 @@ static const unsigned char RCON[17] = {
  * are a counter value: (0, ctr+7, 0, ctr+6, ..., 0, ctr).
  *
  * Consider a byte and its bits, e.g., x_0 = (76543210).
- * We define 
+ * We define
  * y = (x xor (x << 2)) & 0xff = (76543210) xor (543210..)
  * z = y xor (y >> 6) = (76543210) xor (543210..) xor (......76) xor (......54)
  * w = (76543210) || z is then a 16-bit value.
@@ -815,7 +815,7 @@ static const unsigned char RCON[17] = {
  * are a counter value: (0, ctr+7, 0, ctr+6, ..., 0, ctr).
  *
  * Consider a byte and its bits, e.g., x_0 = (76543210).
- * We define 
+ * We define
  * y = (x xor (x << 2)) & 0xff = (76543210) xor (543210..)
  * z = y xor (y >> 6) = (76543210) xor (543210..) xor (......76) xor (......54)
  * w = (76543210) || z is then a 16-bit value.
@@ -966,25 +966,6 @@ static void add_round_constants(deoxys_bc_block_t* round_keys,
 
 // ---------------------------------------------------------------------
 
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wunused-parameter"
-
-void deoxys_bc_128_128_setup_key(deoxys_bc_128_128_ctx_t* ctx,
-                                 const deoxys_bc_key_t key) {
-    // TODO(me)
-}
-
-// ---------------------------------------------------------------------
-
-void deoxys_bc_128_256_setup_key(deoxys_bc_128_256_ctx_t* ctx,
-                                 const deoxys_bc_key_t key) {
-    // TODO(me)
-}
-
-#pragma clang diagnostic pop
-
-// ---------------------------------------------------------------------
-
 void deoxys_bc_128_384_setup_key(deoxys_bc_128_384_ctx_t* ctx,
                                  const deoxys_bc_key_t key) {
     deoxys_bc_block_t* round_keys = ctx->round_keys;
@@ -1012,20 +993,6 @@ void deoxys_bc_128_384_setup_decryption_key(deoxys_bc_128_384_ctx_t* ctx) {
     ctx->decryption_keys[DEOXYS_BC_128_384_NUM_ROUNDS]
         = ctx->round_keys[DEOXYS_BC_128_384_NUM_ROUNDS];
 }
-
-// ---------------------------------------------------------------------
-
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wunused-parameter"
-
-static void deoxys_bc_128_256_setup_tweak(
-    deoxys_bc_128_256_ctx_t* ctx,
-    const deoxys_bc_128_256_tweak_t tweak) {
-
-    // TODO(me)
-}
-
-#pragma clang diagnostic pop
 
 // ---------------------------------------------------------------------
 
@@ -1157,39 +1124,6 @@ static __m128i deoxys_bc_128_encrypt(const __m128i* round_keys,
     }
 
     return state;
-}
-
-// ---------------------------------------------------------------------
-
-void deoxys_bc_128_128_encrypt(deoxys_bc_128_128_ctx_t* ctx,
-                               const deoxys_bc_key_t key,
-                               const deoxys_bc_block_t plaintext,
-                               deoxys_bc_block_t* ciphertext) {
-    deoxys_bc_128_128_setup_key(ctx, key);
-
-    const size_t num_rounds = DEOXYS_BC_128_128_NUM_ROUNDS;
-    __m128i state = vxor(plaintext, ctx->round_keys[0]);
-
-    for (size_t i = 1; i < num_rounds; ++i) {
-        state = vaesenc(state, ctx->round_keys[i]);
-    }
-
-    *ciphertext = vaesenc(state, ctx->round_keys[num_rounds]);
-}
-
-// ---------------------------------------------------------------------
-
-void deoxys_bc_128_256_encrypt(deoxys_bc_128_256_ctx_t* ctx,
-                               const deoxys_bc_key_t key,
-                               const deoxys_bc_128_256_tweak_t tweak,
-                               const deoxys_bc_block_t plaintext,
-                               deoxys_bc_block_t* ciphertext) {
-    deoxys_bc_128_256_setup_key(ctx, key);
-    deoxys_bc_128_256_setup_tweak(ctx, tweak);
-    *ciphertext = deoxys_bc_128_encrypt(ctx->round_keys,
-                                        ctx->round_tweaks,
-                                        DEOXYS_BC_128_256_NUM_ROUNDS,
-                                        plaintext);
 }
 
 // ---------------------------------------------------------------------
@@ -1381,7 +1315,7 @@ void deoxys_bc_128_384_encrypt_eight_eight(deoxys_bc_128_384_ctx_t* ctx,
 
 // ---------------------------------------------------------------------
 
-#define foo(states, i, permutation) do { \
+#define aesenc_round_and_combine_counters(states, i, permutation) do { \
     vaesenc_round_eight(states, ctx->combined_round_keys[i]); \
     combine_eight(states, counters[i], permutation); \
 } while (0)
@@ -1403,24 +1337,24 @@ void deoxys_bc_128_384_encrypt_eight_one(deoxys_bc_128_384_ctx_t* ctx,
     vxor_eight_same(states, ctx->combined_round_keys[0]);
     combine_eight_no_permute(states, counters[0]);
 
-    foo(states, 1, H_PERMUTATION_1);
-    foo(states, 2, H_PERMUTATION_2);
-    foo(states, 3, H_PERMUTATION_3);
-    foo(states, 4, H_PERMUTATION_4);
-    foo(states, 5, H_PERMUTATION_5);
-    foo(states, 6, H_PERMUTATION_6);
-    foo(states, 7, H_PERMUTATION_7);
+    aesenc_round_and_combine_counters(states, 1, H_PERMUTATION_1);
+    aesenc_round_and_combine_counters(states, 2, H_PERMUTATION_2);
+    aesenc_round_and_combine_counters(states, 3, H_PERMUTATION_3);
+    aesenc_round_and_combine_counters(states, 4, H_PERMUTATION_4);
+    aesenc_round_and_combine_counters(states, 5, H_PERMUTATION_5);
+    aesenc_round_and_combine_counters(states, 6, H_PERMUTATION_6);
+    aesenc_round_and_combine_counters(states, 7, H_PERMUTATION_7);
 
     vaesenc_round_eight(states, ctx->combined_round_keys[8]);
     combine_eight_no_permute(states, counters[8]);
 
-    foo(states, 9, H_PERMUTATION_1);
-    foo(states, 10, H_PERMUTATION_2);
-    foo(states, 11, H_PERMUTATION_3);
-    foo(states, 12, H_PERMUTATION_4);
-    foo(states, 13, H_PERMUTATION_5);
-    foo(states, 14, H_PERMUTATION_6);
-    foo(states, 15, H_PERMUTATION_7);
+    aesenc_round_and_combine_counters(states, 9, H_PERMUTATION_1);
+    aesenc_round_and_combine_counters(states, 10, H_PERMUTATION_2);
+    aesenc_round_and_combine_counters(states, 11, H_PERMUTATION_3);
+    aesenc_round_and_combine_counters(states, 12, H_PERMUTATION_4);
+    aesenc_round_and_combine_counters(states, 13, H_PERMUTATION_5);
+    aesenc_round_and_combine_counters(states, 14, H_PERMUTATION_6);
+    aesenc_round_and_combine_counters(states, 15, H_PERMUTATION_7);
 
     vaesenc_round_eight(states,
                         ctx->combined_round_keys[DEOXYS_BC_128_384_NUM_ROUNDS]);
@@ -1449,36 +1383,6 @@ static __m128i deoxys_bc_128_decrypt(const __m128i* round_keys,
     state = vaesdeclast(state, vxor(round_keys[0], round_tweaks[0]));
     return state;
 }
-
-// ---------------------------------------------------------------------
-
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wunused-parameter"
-
-/**
- * Unnecessary for ZCZ.
- */
-void deoxys_bc_128_128_decrypt(deoxys_bc_128_128_ctx_t* ctx,
-                               const deoxys_bc_key_t key,
-                               const deoxys_bc_block_t ciphertext,
-                               deoxys_bc_block_t plaintext) {
-    // TODO(me)
-}
-
-// ---------------------------------------------------------------------
-
-/**
- * Unnecessary for ZCZ.
- */
-void deoxys_bc_128_256_decrypt(deoxys_bc_128_256_ctx_t* ctx,
-                               const deoxys_bc_key_t key,
-                               const deoxys_bc_128_256_tweak_t tweak,
-                               const deoxys_bc_block_t ciphertext,
-                               deoxys_bc_block_t plaintext) {
-    // TODO(me)
-}
-
-#pragma clang diagnostic pop
 
 // ---------------------------------------------------------------------
 

@@ -176,8 +176,7 @@ static void pad_message(uint8_t* target,
                         const size_t num_source_bytes,
                         const size_t num_target_bytes) {
     if (num_target_bytes <= num_source_bytes) {
-        // TODO(me): Should throw exception if the array
-        // to be padded has no space for any padding.
+        puts("[FATAL] Cannot pad message");
         return;
     }
 
@@ -236,10 +235,6 @@ static void encrypt_top_layer(zcz_ctx_t* ctx,
     zeroize_block(x_r);
 
     for (size_t i = 0; i < num_di_blocks-1; ++i) {
-        // printf("Left/Right %zu\n", i+1);
-        // print_hex("L", left_input_block, ZCZ_NUM_BYTES_IN_BLOCK);
-        // print_hex("R", right_input_block, ZCZ_NUM_BYTES_IN_BLOCK);
-
         zcz_primitive_encrypt(ctx,
                               ZCZ_DOMAIN_TOP,
                               i+1,
@@ -248,31 +243,19 @@ static void encrypt_top_layer(zcz_ctx_t* ctx,
                               left_output_block);
         memcpy(right_output_block, right_input_block, ZCZ_NUM_BYTES_IN_BLOCK);
 
-        // print_hex("X", left_output_block, ZCZ_NUM_BYTES_IN_BLOCK);
-
         gf_double_block(x_l);                // X_L = X_L * 2
         xor_block(x_l, left_output_block);  // X_L = X_L xor X_i
 
         gf_times_four_block(x_r);            // X_R = X_R * 4
-        // print_hex("4 * X_r", x_r, ZCZ_NUM_BYTES_IN_BLOCK);
 
         xor_block(x_r, left_output_block);
         xor_block(x_r, right_input_block);  // X_R = X_R xor (X_i xor R_i)
-
-        // print_hex("X_i", left_output_block, ZCZ_NUM_BYTES_IN_BLOCK);
-        // print_hex("R_i", right_input_block, ZCZ_NUM_BYTES_IN_BLOCK);
-
-        // print_hex("X_l new", x_l, ZCZ_NUM_BYTES_IN_BLOCK);
-        // print_hex("X_r new", x_r, ZCZ_NUM_BYTES_IN_BLOCK);
 
         left_input_block += ZCZ_NUM_BYTES_IN_DI_BLOCK;
         right_input_block += ZCZ_NUM_BYTES_IN_DI_BLOCK;
         left_output_block += ZCZ_NUM_BYTES_IN_DI_BLOCK;
         right_output_block += ZCZ_NUM_BYTES_IN_DI_BLOCK;
     }
-
-    // print_hex("X_l sum", x_l, ZCZ_NUM_BYTES_IN_BLOCK);
-    // print_hex("X_r sum", x_r, ZCZ_NUM_BYTES_IN_BLOCK);
 
     zcz_primitive_encrypt(ctx,
                           ZCZ_DOMAIN_XL,
@@ -301,9 +284,6 @@ static void encrypt_middle_layer(zcz_ctx_t* ctx,
     }
 
     const size_t num_chunks = get_num_chunks(num_di_blocks_without_final);
-
-    // printf("#di blocks w/o final: %zu\n", num_di_blocks_without_final);
-    // printf("num_chunks: %zu\n", num_chunks);
 
     uint8_t* left_output_block = state;
     uint8_t* right_output_block = state + ZCZ_NUM_BYTES_IN_BLOCK;
@@ -340,9 +320,6 @@ static void encrypt_middle_layer(zcz_ctx_t* ctx,
             }
         }
 
-        // printf("num_di_blocks_in_chunk: %zu\n", num_di_blocks_in_chunk);
-        // printf(""#di blocks w/o final: %zu\n", num_di_blocks_without_final);
-
         for (size_t j = 0; j < num_di_blocks_in_chunk; ++j) {
             zcz_block_t z_i_j;
             zcz_primitive_encrypt(ctx,
@@ -356,13 +333,6 @@ static void encrypt_middle_layer(zcz_ctx_t* ctx,
             xor_block(right_output_block, z_i_j);
             xor_block(right_output_block, s_i);   // Y_i = R_i ^ Z_{i,j} ^ S_i
 
-            printf("i+1: %zu, j+1: %zu\n", i+1, j+1);
-            print_hex("s_i", s_i, ZCZ_NUM_BYTES_IN_BLOCK);
-            print_hex("z_i_j", z_i_j, ZCZ_NUM_BYTES_IN_BLOCK);
-
-            print_hex("L'", left_output_block, ZCZ_NUM_BYTES_IN_BLOCK);
-            print_hex("Y ", right_output_block, ZCZ_NUM_BYTES_IN_BLOCK);
-
             gf_double_block(y_r);                 // Y_R = Y_R * 2
             xor_block(y_r, right_output_block);  // Y_R = Y_R ^ Y_i
 
@@ -370,16 +340,10 @@ static void encrypt_middle_layer(zcz_ctx_t* ctx,
             xor_block(y_l, right_output_block);
             xor_block(y_l, left_output_block);   // Y_L = Y_L ^ (Y_i ^ L'_i)
 
-            print_hex("Y_l new", y_l, ZCZ_NUM_BYTES_IN_BLOCK);
-            print_hex("Y_r new", y_r, ZCZ_NUM_BYTES_IN_BLOCK);
-
             left_output_block += ZCZ_NUM_BYTES_IN_DI_BLOCK;
             right_output_block += ZCZ_NUM_BYTES_IN_DI_BLOCK;
         }
     }
-
-    print_hex("Y_l sum", y_l, ZCZ_NUM_BYTES_IN_BLOCK);
-    print_hex("Y_r sum", y_r, ZCZ_NUM_BYTES_IN_BLOCK);
 
     zcz_primitive_encrypt(ctx,
                           ZCZ_DOMAIN_YL,
@@ -417,10 +381,6 @@ static void encrypt_bottom_layer(zcz_ctx_t* ctx,
                               right_output_block);
         memcpy(left_output_block, left_input_block, ZCZ_NUM_BYTES_IN_BLOCK);
 
-        printf("Left/Right %zu\n", i+1);
-        print_hex("L'", left_output_block, ZCZ_NUM_BYTES_IN_BLOCK);
-        print_hex("R'", right_output_block, ZCZ_NUM_BYTES_IN_BLOCK);
-
         left_input_block += ZCZ_NUM_BYTES_IN_DI_BLOCK;
         right_input_block += ZCZ_NUM_BYTES_IN_DI_BLOCK;
         left_output_block += ZCZ_NUM_BYTES_IN_DI_BLOCK;
@@ -443,13 +403,6 @@ static void encrypt_last_di_block_top(zcz_ctx_t* ctx,
     xor_block_three(left_output_block, left_input_block, ctx->x_l);
     xor_block_three(right_output_block, right_input_block, ctx->x_r);
 
-    print_hex("L_l", left_input_block, ZCZ_NUM_BYTES_IN_BLOCK);
-    print_hex("R_l", right_input_block, ZCZ_NUM_BYTES_IN_BLOCK);
-    print_hex("X_L", ctx->x_l, ZCZ_NUM_BYTES_IN_BLOCK);
-    print_hex("X_R", ctx->x_r, ZCZ_NUM_BYTES_IN_BLOCK);
-    print_hex("X_L xor L_l", left_output_block, ZCZ_NUM_BYTES_IN_BLOCK);
-    print_hex("X_R xor R_l", right_output_block, ZCZ_NUM_BYTES_IN_BLOCK);
-
     zcz_primitive_encrypt(ctx,
                           ZCZ_DOMAIN_TOP_LAST,
                           num_di_blocks,
@@ -463,9 +416,6 @@ static void encrypt_last_di_block_top(zcz_ctx_t* ctx,
                           ctx->s,
                           right_output_block,
                           ctx->t);
-
-    print_hex("S", ctx->s, ZCZ_NUM_BYTES_IN_BLOCK);
-    print_hex("T", ctx->t, ZCZ_NUM_BYTES_IN_BLOCK);
 }
 
 // ---------------------------------------------------------------------
@@ -498,14 +448,6 @@ static void encrypt_last_di_block_bottom(zcz_ctx_t* ctx,
 
     xor_block_three(left_ciphertext_block, left_output_block, ctx->y_l);
     xor_block_three(right_ciphertext_block, right_output_block, ctx->y_r);
-
-    print_hex("Y_L", ctx->y_l, ZCZ_NUM_BYTES_IN_BLOCK);
-    print_hex("Y_R", ctx->y_r, ZCZ_NUM_BYTES_IN_BLOCK);
-    print_hex("Y_L xor L'_l", left_output_block, ZCZ_NUM_BYTES_IN_BLOCK);
-    print_hex("Y_R xor R'_l", right_output_block, ZCZ_NUM_BYTES_IN_BLOCK);
-
-    print_hex("L'_l", left_ciphertext_block, ZCZ_NUM_BYTES_IN_BLOCK);
-    print_hex("R'_l", right_ciphertext_block, ZCZ_NUM_BYTES_IN_BLOCK);
 }
 
 // ---------------------------------------------------------------------
@@ -530,9 +472,6 @@ static void decrypt_top_layer(zcz_ctx_t* ctx,
                               left_input_block,
                               left_output_block);
         memcpy(right_output_block, right_input_block, ZCZ_NUM_BYTES_IN_BLOCK);
-
-        // printf("Left/Right %zu\n", i+1);
-        // print_hex("L", left_output_block, ZCZ_NUM_BYTES_IN_BLOCK);
 
         left_input_block += ZCZ_NUM_BYTES_IN_DI_BLOCK;
         right_input_block += ZCZ_NUM_BYTES_IN_DI_BLOCK;
@@ -600,13 +539,6 @@ static void decrypt_middle_layer(zcz_ctx_t* ctx,
             xor_block(right_output_block, z_i_j);
             xor_block(right_output_block, s_i);   // Y_i = R_i ^ Z_{i,j} ^ S_i
 
-            // printf("i: %zu, j+1: %zu\n", i+1, j+1);
-            // print_hex("s_i", s_i, ZCZ_NUM_BYTES_IN_BLOCK);
-            // print_hex("z_i_j", z_i_j, ZCZ_NUM_BYTES_IN_BLOCK);
-
-            // print_hex("X", left_output_block, ZCZ_NUM_BYTES_IN_BLOCK);
-            // print_hex("R", right_output_block, ZCZ_NUM_BYTES_IN_BLOCK);
-
             gf_double_block(x_l);                 // X_L = X_L * 2
             xor_block(x_l, left_output_block);   // X_L = X_L ^ X_i
 
@@ -632,9 +564,6 @@ static void decrypt_middle_layer(zcz_ctx_t* ctx,
                           x_l,
                           x_r,
                           ctx->x_r);
-
-    // print_hex("X_L", ctx->x_l, ZCZ_NUM_BYTES_IN_BLOCK);
-    // print_hex("X_R", ctx->x_r, ZCZ_NUM_BYTES_IN_BLOCK);
 }
 
 // ---------------------------------------------------------------------
@@ -655,10 +584,6 @@ static void decrypt_bottom_layer(zcz_ctx_t* ctx,
     zeroize_block(y_r);
 
     for (size_t i = 0; i < num_di_blocks-1; ++i) {
-        // printf("Left/Right %zu\n", i+1);
-        // print_hex("L'", left_input_block, ZCZ_NUM_BYTES_IN_BLOCK);
-        // print_hex("R'", right_input_block, ZCZ_NUM_BYTES_IN_BLOCK);
-
         zcz_primitive_decrypt(ctx,
                               ZCZ_DOMAIN_BOT,
                               i+1,
@@ -666,8 +591,6 @@ static void decrypt_bottom_layer(zcz_ctx_t* ctx,
                               right_input_block,
                               right_output_block);
         memcpy(left_output_block, left_input_block, ZCZ_NUM_BYTES_IN_BLOCK);
-
-        // print_hex("Y ", right_output_block, ZCZ_NUM_BYTES_IN_BLOCK);
 
         gf_double_block(y_r);                  // Y_R = Y_R * 2
         xor_block(y_r, right_output_block);   // Y_R = Y_R xor Y_i
@@ -705,12 +628,6 @@ static void decrypt_last_di_block_top(zcz_ctx_t* ctx,
     zcz_block_t left_output_block;
     zcz_block_t right_output_block;
 
-    // print_hex("X_L", ctx->x_l, ZCZ_NUM_BYTES_IN_BLOCK);
-    // print_hex("X_R", ctx->x_r, ZCZ_NUM_BYTES_IN_BLOCK);
-
-    // print_hex("S", ctx->s, ZCZ_NUM_BYTES_IN_BLOCK);
-    // print_hex("T", ctx->t, ZCZ_NUM_BYTES_IN_BLOCK);
-
     zcz_primitive_decrypt(ctx,
                           ZCZ_DOMAIN_S_LAST,
                           num_di_blocks,
@@ -725,9 +642,6 @@ static void decrypt_last_di_block_top(zcz_ctx_t* ctx,
                           ctx->s,
                           left_output_block);
 
-    // print_hex("X_L xor L_l", left_output_block, ZCZ_NUM_BYTES_IN_BLOCK);
-    // print_hex("X_R xor R_l", right_output_block, ZCZ_NUM_BYTES_IN_BLOCK);
-
     uint8_t* left_plaintext_block =
             plaintext + (num_di_blocks - 1) * ZCZ_NUM_BYTES_IN_DI_BLOCK;
     uint8_t* right_plaintext_block =
@@ -735,9 +649,6 @@ static void decrypt_last_di_block_top(zcz_ctx_t* ctx,
 
     xor_block_three(left_plaintext_block, left_output_block, ctx->x_l);
     xor_block_three(right_plaintext_block, right_output_block, ctx->x_r);
-
-    // print_hex("L_l", left_plaintext_block, ZCZ_NUM_BYTES_IN_BLOCK);
-    // print_hex("R_l", right_plaintext_block, ZCZ_NUM_BYTES_IN_BLOCK);
 }
 
 // ---------------------------------------------------------------------
@@ -768,18 +679,6 @@ static void decrypt_last_di_block_bottom(zcz_ctx_t* ctx,
                           ctx->t,
                           left_output_block,
                           ctx->s);
-
-    // print_hex("S", ctx->s, ZCZ_NUM_BYTES_IN_BLOCK);
-    // print_hex("T", ctx->t, ZCZ_NUM_BYTES_IN_BLOCK);
-
-    // print_hex("Y_L", ctx->y_l, ZCZ_NUM_BYTES_IN_BLOCK);
-    // print_hex("Y_R", ctx->y_r, ZCZ_NUM_BYTES_IN_BLOCK);
-
-    // print_hex("Y_L xor L'_l", left_output_block, ZCZ_NUM_BYTES_IN_BLOCK);
-    // print_hex("Y_R xor R'_l", right_output_block, ZCZ_NUM_BYTES_IN_BLOCK);
-
-    // print_hex("L'_l", left_ciphertext_block, ZCZ_NUM_BYTES_IN_BLOCK);
-    // print_hex("R'_l", right_ciphertext_block, ZCZ_NUM_BYTES_IN_BLOCK);
 }
 
 // ---------------------------------------------------------------------
@@ -881,8 +780,6 @@ static void internal_zcz_encrypt(zcz_ctx_t* ctx,
                 num_remaining_bytes,
                 ZCZ_NUM_BYTES_IN_DI_BLOCK);
 
-    // print_hex("pad(M*)", padded_final_di_block, ZCZ_NUM_BYTES_IN_DI_BLOCK);
-
     // ---------------------------------------------------------------------
     // Top layer
     // ---------------------------------------------------------------------
@@ -899,13 +796,8 @@ static void internal_zcz_encrypt(zcz_ctx_t* ctx,
                               padded_final_di_block,
                               top_hash_output);
 
-    // print_hex("M_l", final_full_di_block, ZCZ_NUM_BYTES_IN_DI_BLOCK);
-    // print_hex("H_T", top_hash_output, ZCZ_NUM_BYTES_IN_DI_BLOCK);
-
     // We stored M_l xor H[E,0] in top_hash_output since we need it later
     memcpy(top_hash_output, final_full_di_block, ZCZ_NUM_BYTES_IN_DI_BLOCK);
-
-    // print_hex("U_l", top_hash_output, ZCZ_NUM_BYTES_IN_DI_BLOCK);
 
     // ---------------------------------------------------------------------
     // Perform ZCZ basic encryption on the full di-blocks
@@ -926,9 +818,6 @@ static void internal_zcz_encrypt(zcz_ctx_t* ctx,
            ciphertext + start_of_last_full_di_block,
            ZCZ_NUM_BYTES_IN_DI_BLOCK);
 
-    // print_hex("Current C", ciphertext, num_plaintext_bytes);
-    // print_hex("V_l", final_full_di_block, ZCZ_NUM_BYTES_IN_DI_BLOCK);
-
     // Here, we need M_l xor H[E,0] and xor it with the result of the final
     // full di-block of the basic encryption, and store it in top_hash_output.
     // Note: we cannot store it in final_full_di_block since we need that later.
@@ -942,8 +831,6 @@ static void internal_zcz_encrypt(zcz_ctx_t* ctx,
 
     xor_di_block(padded_final_di_block, middle_hash_output);
 
-    // print_hex("H_M", middle_hash_output, ZCZ_NUM_BYTES_IN_DI_BLOCK);
-
     // ---------------------------------------------------------------------
     // Bottom layer
     // ---------------------------------------------------------------------
@@ -955,16 +842,11 @@ static void internal_zcz_encrypt(zcz_ctx_t* ctx,
                 num_remaining_bytes,
                 ZCZ_NUM_BYTES_IN_DI_BLOCK);
 
-    // print_hex("C_*", padded_final_di_block, ZCZ_NUM_BYTES_IN_DI_BLOCK);
-
     uint8_t bottom_hash_output[ZCZ_NUM_BYTES_IN_DI_BLOCK];
     encrypt_partial_bottom_layer(ctx,
                                  final_full_di_block,
                                  padded_final_di_block,
                                  bottom_hash_output);
-
-    // print_hex("H_B", bottom_hash_output, ZCZ_NUM_BYTES_IN_DI_BLOCK);
-    // print_hex("C_l", final_full_di_block, ZCZ_NUM_BYTES_IN_DI_BLOCK);
 
     // ---------------------------------------------------------------------
     // Copy the partial di-block result to the partial di-block in the
@@ -978,9 +860,6 @@ static void internal_zcz_encrypt(zcz_ctx_t* ctx,
     memcpy(ciphertext + num_bytes_in_full_di_blocks,
            padded_final_di_block,
            num_remaining_bytes);
-
-    // print_hex("C_*", padded_final_di_block, num_remaining_bytes);
-    // print_hex("C", ciphertext, num_plaintext_bytes);
 }
 
 // ---------------------------------------------------------------------
@@ -1013,8 +892,6 @@ static void internal_zcz_decrypt(zcz_ctx_t* ctx,
                 num_remaining_bytes,
                 ZCZ_NUM_BYTES_IN_DI_BLOCK);
 
-    // print_hex("C_*", padded_final_di_block, ZCZ_NUM_BYTES_IN_DI_BLOCK);
-
     // ---------------------------------------------------------------------
     // Bottom layer
     // ---------------------------------------------------------------------
@@ -1026,19 +903,13 @@ static void internal_zcz_decrypt(zcz_ctx_t* ctx,
            ciphertext + start_of_last_full_di_block,
            ZCZ_NUM_BYTES_IN_DI_BLOCK);
 
-    // print_hex("C_l", final_full_di_block, ZCZ_NUM_BYTES_IN_DI_BLOCK);
-
     encrypt_partial_bottom_layer(ctx,
                                  final_full_di_block,
                                  padded_final_di_block,
                                  bottom_hash_output);
 
-    // print_hex("H_B", bottom_hash_output, ZCZ_NUM_BYTES_IN_DI_BLOCK);
-
     // Copy the final di-block to XOR it later on
     memcpy(bottom_hash_output, final_full_di_block, ZCZ_NUM_BYTES_IN_DI_BLOCK);
-
-    // print_hex("V_l", final_full_di_block, ZCZ_NUM_BYTES_IN_DI_BLOCK);
 
     // ---------------------------------------------------------------------
     // Perform ZCZ basic encryption on the full di-blocks
@@ -1059,8 +930,6 @@ static void internal_zcz_decrypt(zcz_ctx_t* ctx,
            plaintext + start_of_last_full_di_block,
            ZCZ_NUM_BYTES_IN_DI_BLOCK);
 
-    // print_hex("U_l", final_full_di_block, ZCZ_NUM_BYTES_IN_DI_BLOCK);
-
     // Here, we need M_l xor H[E,0] and xor it with the result of the final
     // full di-block of the basic encryption, and store it in top_hash_output.
     // Note: we cannot store it in final_full_di_block since we need that later.
@@ -1072,11 +941,7 @@ static void internal_zcz_decrypt(zcz_ctx_t* ctx,
                                  bottom_hash_output,
                                  middle_hash_output);
 
-    // print_hex("H_M", middle_hash_output, ZCZ_NUM_BYTES_IN_DI_BLOCK);
-
     xor_di_block(padded_final_di_block, middle_hash_output);
-
-    // print_hex("M_*", padded_final_di_block, ZCZ_NUM_BYTES_IN_DI_BLOCK);
 
     // ---------------------------------------------------------------------
     // Top layer
@@ -1095,9 +960,6 @@ static void internal_zcz_decrypt(zcz_ctx_t* ctx,
                               padded_final_di_block,
                               top_hash_output);
 
-    // print_hex("H_T", top_hash_output, ZCZ_NUM_BYTES_IN_DI_BLOCK);
-    // print_hex("M_l", final_full_di_block, ZCZ_NUM_BYTES_IN_DI_BLOCK);
-
     // ---------------------------------------------------------------------
     // Copy the partial di-block result to the partial di-block in the
     // plaintext.
@@ -1110,8 +972,6 @@ static void internal_zcz_decrypt(zcz_ctx_t* ctx,
     memcpy(plaintext + num_bytes_in_full_di_blocks,
            padded_final_di_block,
            num_remaining_bytes);
-
-    // print_hex("M_*", top_hash_output, ZCZ_NUM_BYTES_IN_DI_BLOCK);
 }
 
 // ---------------------------------------------------------------------
@@ -1215,5 +1075,3 @@ void zcz_decrypt(zcz_ctx_t* ctx,
 
     internal_zcz_decrypt(ctx, ciphertext, num_ciphertext_bytes, plaintext);
 }
-
-// ---------------------------------------------------------------------
