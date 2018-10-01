@@ -152,85 +152,85 @@ static const unsigned char RCON[17] = {
 
 // ---------------------------------------------------------------------
 
-#define lfsr_two_generic(x, y, tmp, r1, r2, mask) do {\
+#define lfsr_two_generic(x, y, tmp, r1, r2, mask) {\
     tmp = vxor(x, vshift_left(x, 2));\
     y = vxor(vand(mask, vshift_right(tmp, r1)), \
              vandnot(mask, vshift_left(x, r2)));\
-} while (0)
+}
 
 // ---------------------------------------------------------------------
 
-#define lfsr_two(x, y) do {\
+#define lfsr_two(x, y) {\
     lfsr_two_generic(x, y, y, 7, 1, set8(0x01));\
-} while (0)
+}
 
 // ---------------------------------------------------------------------
 
-#define lfsr_three(x, y) do {\
+#define lfsr_three(x, y) {\
     y = vandnot(MSB_MASK , vshift_right(x, 1));\
     y = vxor(y, vand(vxor(vshift_left(x, 1), vshift_left(x, 7)), MSB_MASK));\
-} while (0)
+}
 
 // ---------------------------------------------------------------------
 // SB^{-1}, SR^{-1}
 // SB, SR, MC
 // ---------------------------------------------------------------------
 
-#define aes_mix_columns(source, dest, zero) do {\
+#define aes_mix_columns(source, dest, zero) {\
     dest = vaesdeclast(source, zero);\
     dest = vaesenc(dest, zero);\
-} while (0)
+}
 
 // ---------------------------------------------------------------------
 // Macros on four blocks in parallel
 // ---------------------------------------------------------------------
 
-#define vxor_four(x, y, z) do {\
+#define vxor_four(x, y, z) {\
     z[0] = vxor(x[0], y[0]);\
     z[1] = vxor(x[1], y[1]);\
     z[2] = vxor(x[2], y[2]);\
     z[3] = vxor(x[3], y[3]);\
-} while (0)
+}
 
 // ---------------------------------------------------------------------
 
-#define vxor_four_same(x, k) do {\
+#define vxor_four_same(x, k) {\
     x[0] = vxor(x[0], k);\
     x[1] = vxor(x[1], k);\
     x[2] = vxor(x[2], k);\
     x[3] = vxor(x[3], k);\
-} while (0)
+}
 
 // ---------------------------------------------------------------------
 
-#define vaesenc_four(x1, x2, x3, x4, k1, k2, k3, k4) do {\
+#define vaesenc_four(x1, x2, x3, x4, k1, k2, k3, k4) {\
     vaesenc(x1, k1);\
     vaesenc(x2, k2);\
     vaesenc(x3, k3);\
     vaesenc(x4, k4);\
-} while (0)
+}
 
 // ---------------------------------------------------------------------
 
-#define vaesdec_four(x1, x2, x3, x4, k1, k2, k3, k4) do {\
+#define vaesdec_four(x1, x2, x3, x4, k1, k2, k3, k4) {\
     vaesdec(x1, k1);\
     vaesdec(x2, k2);\
     vaesdec(x3, k3);\
     vaesdec(x4, k4);\
-} while (0)
+}
 
 // ---------------------------------------------------------------------
 
-#define vaesdeclast_four(x1, x2, x3, x4, k1, k2, k3, k4) do {\
+#define vaesdeclast_four(x1, x2, x3, x4, k1, k2, k3, k4) {\
     vaesdeclast(x1, k1);\
     vaesdeclast(x2, k2);\
     vaesdeclast(x3, k3);\
     vaesdeclast(x4, k4);\
-} while (0)
+}
 
 // ---------------------------------------------------------------------
 
-#define aes_mix_columns_four(states, zero) do {\
+#define aes_mix_columns_four(states, zero) {\
     states[0] = vaesdeclast(states[0], zero);\
     states[1] = vaesdeclast(states[1], zero);\
     states[2] = vaesdeclast(states[2], zero);\
@@ -239,60 +239,60 @@ static const unsigned char RCON[17] = {
     states[1] = vaesenc(states[1], zero);\
     states[2] = vaesenc(states[2], zero);\
     states[3] = vaesenc(states[3], zero);\
-} while (0)
+}
 
 // ---------------------------------------------------------------------
 
-#define vinversemc_four(states) do {\
+#define vinversemc_four(states) {\
     states[0] = vinversemc(states[0]); \
     states[1] = vinversemc(states[1]); \
     states[2] = vinversemc(states[2]); \
     states[3] = vinversemc(states[3]); \
-} while (0)
+}
 
 // ---------------------------------------------------------------------
 
-#define deoxys_enc_round_four(states, round_tweaks, round_key) do {\
+#define deoxys_enc_round_four(states, round_tweaks, round_key) {\
     states[0] = vaesenc(states[0], vxor(round_key, round_tweaks[0])); \
     states[1] = vaesenc(states[1], vxor(round_key, round_tweaks[1])); \
     states[2] = vaesenc(states[2], vxor(round_key, round_tweaks[2])); \
     states[3] = vaesenc(states[3], vxor(round_key, round_tweaks[3])); \
-} while (0)
+}
 
 // ---------------------------------------------------------------------
 
 #define deoxys_enc_round_four_store(\
-    ciphertexts, states, round_tweaks, round_key) do {\
+    ciphertexts, states, round_tweaks, round_key) {\
     ciphertexts[0] = vaesenc(states[0], vxor(round_key, round_tweaks[0])); \
     ciphertexts[1] = vaesenc(states[1], vxor(round_key, round_tweaks[1])); \
     ciphertexts[2] = vaesenc(states[2], vxor(round_key, round_tweaks[2])); \
     ciphertexts[3] = vaesenc(states[3], vxor(round_key, round_tweaks[3])); \
-} while (0)
+}
 
 // ---------------------------------------------------------------------
 
-#define deoxys_dec_round_four(states, round_tweaks, round_key) do {\
+#define deoxys_dec_round_four(states, round_tweaks, round_key) {\
     states[0] = vaesdec(states[0], vxor(round_key, round_tweaks[0])); \
     states[1] = vaesdec(states[1], vxor(round_key, round_tweaks[1])); \
     states[2] = vaesdec(states[2], vxor(round_key, round_tweaks[2])); \
     states[3] = vaesdec(states[3], vxor(round_key, round_tweaks[3])); \
-} while (0)
+}
 
 // ---------------------------------------------------------------------
 
 #define deoxys_declast_round_four(\
-    plaintexts, states, round_tweaks, round_key) do {\
+    plaintexts, states, round_tweaks, round_key) {\
     plaintexts[0] = vaesdeclast(states[0], vxor(round_key, round_tweaks[0])); \
     plaintexts[1] = vaesdeclast(states[1], vxor(round_key, round_tweaks[1])); \
     plaintexts[2] = vaesdeclast(states[2], vxor(round_key, round_tweaks[2])); \
     plaintexts[3] = vaesdeclast(states[3], vxor(round_key, round_tweaks[3])); \
-} while (0)
+}
 
 // ---------------------------------------------------------------------
 // Macros on eight blocks in parallel
 // ---------------------------------------------------------------------
 
-#define vxor_eight(x, y, z) do {\
+#define vxor_eight(x, y, z) {\
     z[0] = vxor(x[0], y[0]);\
     z[1] = vxor(x[1], y[1]);\
     z[2] = vxor(x[2], y[2]);\
@@ -301,11 +301,11 @@ static const unsigned char RCON[17] = {
     z[5] = vxor(x[5], y[5]);\
     z[6] = vxor(x[6], y[6]);\
     z[7] = vxor(x[7], y[7]);\
-} while (0)
+}
 
 // ---------------------------------------------------------------------
 
-#define vxor_eight_same(x, k) do {\
+#define vxor_eight_same(x, k) {\
     x[0] = vxor(x[0], k);\
     x[1] = vxor(x[1], k);\
     x[2] = vxor(x[2], k);\
@@ -314,11 +314,11 @@ static const unsigned char RCON[17] = {
     x[5] = vxor(x[5], k);\
     x[6] = vxor(x[6], k);\
     x[7] = vxor(x[7], k);\
-} while (0)
+}
 
 // ---------------------------------------------------------------------
 
-#define vaesenc_round_eight(states, round_key) do {\
+#define vaesenc_round_eight(states, round_key) {\
     states[0] = vaesenc(states[0], round_key); \
     states[1] = vaesenc(states[1], round_key); \
     states[2] = vaesenc(states[2], round_key); \
@@ -327,11 +327,11 @@ static const unsigned char RCON[17] = {
     states[5] = vaesenc(states[5], round_key); \
     states[6] = vaesenc(states[6], round_key); \
     states[7] = vaesenc(states[7], round_key); \
-} while (0)
+}
 
 // ---------------------------------------------------------------------
 
-#define deoxys_enc_round_eight(states, round_tweaks, round_key) do {\
+#define deoxys_enc_round_eight(states, round_tweaks, round_key) {\
     states[0] = vaesenc(states[0], vxor(round_key, round_tweaks[0])); \
     states[1] = vaesenc(states[1], vxor(round_key, round_tweaks[1])); \
     states[2] = vaesenc(states[2], vxor(round_key, round_tweaks[2])); \
@@ -340,11 +340,11 @@ static const unsigned char RCON[17] = {
     states[5] = vaesenc(states[5], vxor(round_key, round_tweaks[5])); \
     states[6] = vaesenc(states[6], vxor(round_key, round_tweaks[6])); \
     states[7] = vaesenc(states[7], vxor(round_key, round_tweaks[7])); \
-} while (0)
+}
 
 // ---------------------------------------------------------------------
 
-#define deoxys_dec_round_eight(states, round_tweaks, round_key) do {\
+#define deoxys_dec_round_eight(states, round_tweaks, round_key) {\
     states[0] = vaesdec(states[0], vxor(round_key, round_tweaks[0])); \
     states[1] = vaesdec(states[1], vxor(round_key, round_tweaks[1])); \
     states[2] = vaesdec(states[2], vxor(round_key, round_tweaks[2])); \
@@ -353,12 +353,12 @@ static const unsigned char RCON[17] = {
     states[5] = vaesdec(states[5], vxor(round_key, round_tweaks[5])); \
     states[6] = vaesdec(states[6], vxor(round_key, round_tweaks[6])); \
     states[7] = vaesdec(states[7], vxor(round_key, round_tweaks[7])); \
-} while (0)
+}
 
 // ---------------------------------------------------------------------
 
 #define deoxys_declast_round_eight(\
-    plaintexts, states, round_tweaks, round_key) do {\
+    plaintexts, states, round_tweaks, round_key) {\
     plaintexts[0] = vaesdeclast(states[0], vxor(round_key, round_tweaks[0])); \
     plaintexts[1] = vaesdeclast(states[1], vxor(round_key, round_tweaks[1])); \
     plaintexts[2] = vaesdeclast(states[2], vxor(round_key, round_tweaks[2])); \
@@ -367,11 +367,11 @@ static const unsigned char RCON[17] = {
     plaintexts[5] = vaesdeclast(states[5], vxor(round_key, round_tweaks[5])); \
     plaintexts[6] = vaesdeclast(states[6], vxor(round_key, round_tweaks[6])); \
     plaintexts[7] = vaesdeclast(states[7], vxor(round_key, round_tweaks[7])); \
-} while (0)
+}
 
 // ---------------------------------------------------------------------
 
-#define aes_mix_columns_eight(states, zero) do {\
+#define aes_mix_columns_eight(states, zero) {\
     states[0] = vaesdeclast(states[0], zero);\
     states[1] = vaesdeclast(states[1], zero);\
     states[2] = vaesdeclast(states[2], zero);\
@@ -388,11 +388,11 @@ static const unsigned char RCON[17] = {
     states[5] = vaesenc(states[5], zero);\
     states[6] = vaesenc(states[6], zero);\
     states[7] = vaesenc(states[7], zero);\
-} while (0)
+}
 
 // ---------------------------------------------------------------------
 
-#define aes_invert_mix_columns_eight(states, zero) do {\
+#define aes_invert_mix_columns_eight(states, zero) {\
     states[0] = vaesenclast(states[0], zero);\
     states[1] = vaesenclast(states[1], zero);\
     states[2] = vaesenclast(states[2], zero);\
@@ -409,28 +409,28 @@ static const unsigned char RCON[17] = {
     states[5] = vaesdec(states[5], zero);\
     states[6] = vaesdec(states[6], zero);\
     states[7] = vaesdec(states[7], zero);\
-} while (0)
+}
 
 // ---------------------------------------------------------------------
 
-#define lfsr_two_generic_with_tmp(x, y, tmp, r1, r2, mask) do {\
+#define lfsr_two_generic_with_tmp(x, y, tmp, r1, r2, mask) {\
     y = vxor(vand(mask, vshift_right(tmp, r1)), \
              vandnot(mask, vshift_left(x, r2)));\
-} while (0)
+}
 
 // ---------------------------------------------------------------------
 
-#define lfsr_two_four_sequence_base(x, tmp) do {\
+#define lfsr_two_four_sequence_base(x, tmp) {\
     tmp = vxor(x[0], vshift_left(x[0], 2)); \
     lfsr_two_generic_with_tmp(x[0], x[1], tmp, 7, 1, set8(0x01)); \
     lfsr_two_generic_with_tmp(x[0], x[2], tmp, 6, 2, set8(0x03)); \
     lfsr_two_generic_with_tmp(x[0], x[3], tmp, 5, 3, set8(0x07)); \
     lfsr_two_generic_with_tmp(x[0], x[4], tmp, 4, 4, set8(0x0F)); \
-} while (0)
+}
 
 // ---------------------------------------------------------------------
 
-#define lfsr_two_six_sequence_base(x, tmp) do {\
+#define lfsr_two_six_sequence_base(x, tmp) {\
     tmp = vxor(x[0], vshift_left(x[0], 2)); \
     lfsr_two_generic_with_tmp(x[0], x[1], tmp, 7, 1, set8(0x01)); \
     lfsr_two_generic_with_tmp(x[0], x[2], tmp, 6, 2, set8(0x03)); \
@@ -438,11 +438,11 @@ static const unsigned char RCON[17] = {
     lfsr_two_generic_with_tmp(x[0], x[4], tmp, 4, 4, set8(0x0F)); \
     lfsr_two_generic_with_tmp(x[0], x[5], tmp, 3, 5, set8(0x1F)); \
     lfsr_two_generic_with_tmp(x[0], x[6], tmp, 2, 6, set8(0x3F)); \
-} while (0)
+}
 
 // ---------------------------------------------------------------------
 
-#define permute_base(x) do {\
+#define permute_base(x) {\
     x[1] = permute(x[1], H_PERMUTATION_1);\
     x[2] = permute(x[2], H_PERMUTATION_2);\
     x[3] = permute(x[3], H_PERMUTATION_3);\
@@ -450,67 +450,67 @@ static const unsigned char RCON[17] = {
     x[5] = permute(x[5], H_PERMUTATION_5);\
     x[6] = permute(x[6], H_PERMUTATION_6);\
     x[7] = permute(x[7], H_PERMUTATION_7);\
-} while (0)
+}
 
 // ---------------------------------------------------------------------
 
 #define update_invround_four_invmc(\
     avx_round_tweaks, tweak_blocks, counters, \
-    round_tweaks, states, round_keys, i, j) do {\
+    round_tweaks, states, round_keys, i, j) {\
     combine_avx_two(avx_round_tweaks, tweak_blocks, counters[j]); \
     permute_avx_two(avx_round_tweaks, i); \
     unpack_two(avx_round_tweaks, round_tweaks); \
     vinversemc_four(round_tweaks); \
     deoxys_dec_round_four(states, round_tweaks, round_keys[j]);\
-} while (0)
+}
 
 // ---------------------------------------------------------------------
 
 #define update_invround_four_invmc_no_permute(\
     avx_round_tweaks, tweak_blocks, counters, \
-    round_tweaks, states, round_keys, i) do {\
+    round_tweaks, states, round_keys, i) {\
     combine_avx_two(avx_round_tweaks, tweak_blocks, counters[i]); \
     unpack_two(avx_round_tweaks, round_tweaks); \
     vinversemc_four(round_tweaks); \
     deoxys_dec_round_four(states, round_tweaks, round_keys[i]);\
-} while (0)
+}
 
 // ---------------------------------------------------------------------
 
 #define update_invlastround_four_no_permute(\
     avx_round_tweaks, tweak_blocks, counters, \
-    round_tweaks, states, round_keys, i) do {\
+    round_tweaks, states, round_keys, i) {\
     combine_avx_two(avx_round_tweaks, tweak_blocks, counters[i]); \
     unpack_two(avx_round_tweaks, round_tweaks); \
     deoxys_declast_round_four(states, states, round_tweaks, round_keys[i]);\
-} while (0)
+}
 
 // ---------------------------------------------------------------------
 
 #define update_round_four(\
     avx_round_tweaks, tweak_blocks, counters, \
-    round_tweaks, states, round_keys, i, j) do {\
+    round_tweaks, states, round_keys, i, j) {\
     combine_avx_two(avx_round_tweaks, tweak_blocks, counters[j]); \
     permute_avx_two(avx_round_tweaks, i); \
     unpack_two(avx_round_tweaks, round_tweaks); \
     deoxys_enc_round_four(states, round_tweaks, round_keys[j]);\
-} while (0)
+}
 
 // ---------------------------------------------------------------------
 
 #define update_round_four_no_permute(\
     avx_round_tweaks, tweak_blocks, counters, \
-    round_tweaks, states, round_keys, i) do {\
+    round_tweaks, states, round_keys, i) {\
     combine_avx_two(avx_round_tweaks, tweak_blocks, counters[i]); \
     unpack_two(avx_round_tweaks, round_tweaks); \
     deoxys_enc_round_four(states, round_tweaks, round_keys[i]);\
-} while (0)
+}
 
 // ---------------------------------------------------------------------
 // For setup of eight tweaks
 // ---------------------------------------------------------------------
 
-#define pack_swap_eight(x1, x2, z) do {\
+#define pack_swap_eight(x1, x2, z) {\
     z[0] = vswap128(x1[0], x2[0]);\
     z[1] = vswap128(x1[1], x2[1]);\
     z[2] = vswap128(x1[2], x2[2]);\
@@ -519,11 +519,11 @@ static const unsigned char RCON[17] = {
     z[5] = vswap128(x1[5], x2[5]);\
     z[6] = vswap128(x1[6], x2[6]);\
     z[7] = vswap128(x1[7], x2[7]);\
-} while (0)
+}
 
 // ---------------------------------------------------------------------
 
-#define pack_eight(x1, x2, z) do {\
+#define pack_eight(x1, x2, z) {\
     z[0] = vset128(x1[0], x2[0]);\
     z[1] = vset128(x1[1], x2[1]);\
     z[2] = vset128(x1[2], x2[2]);\
@@ -532,11 +532,11 @@ static const unsigned char RCON[17] = {
     z[5] = vset128(x1[5], x2[5]);\
     z[6] = vset128(x1[6], x2[6]);\
     z[7] = vset128(x1[7], x2[7]);\
-} while (0)
+}
 
 // ---------------------------------------------------------------------
 
-#define unpack_eight(z, y1, y2) do {\
+#define unpack_eight(z, y1, y2) {\
     y1[0] = vget128(z[0], 0); \
     y2[0] = vget128(z[0], 1); \
     y1[1] = vget128(z[1], 0); \
@@ -553,18 +553,18 @@ static const unsigned char RCON[17] = {
     y2[6] = vget128(z[6], 1); \
     y1[7] = vget128(z[7], 0); \
     y2[7] = vget128(z[7], 1); \
-} while (0)
+}
 
 // ---------------------------------------------------------------------
 
-#define swap_halves_eight(x1, x2, z) do {\
+#define swap_halves_eight(x1, x2, z) {\
     pack_swap_eight(x1, x2, z); \
     unpack_eight(z, x1, x2); \
-} while (0)
+}
 
 // ---------------------------------------------------------------------
 
-#define permute_avx_eight(z, i) do {\
+#define permute_avx_eight(z, i) {\
     z[0] = permute_avx(z[0], VH_PERMUTATION_##i);\
     z[1] = permute_avx(z[1], VH_PERMUTATION_##i);\
     z[2] = permute_avx(z[2], VH_PERMUTATION_##i);\
@@ -573,36 +573,36 @@ static const unsigned char RCON[17] = {
     z[5] = permute_avx(z[5], VH_PERMUTATION_##i);\
     z[6] = permute_avx(z[6], VH_PERMUTATION_##i);\
     z[7] = permute_avx(z[7], VH_PERMUTATION_##i);\
-} while (0)
+}
 
 // ---------------------------------------------------------------------
 
-#define permute_avx_tweak_eight(x1, x2, z, i) do {\
+#define permute_avx_tweak_eight(x1, x2, z, i) {\
     pack_eight(x1, x2, z); \
     permute_avx_eight(z, i); \
     unpack_eight(z, x1, x2); \
-} while (0)
+}
 
 // ---------------------------------------------------------------------
 
-#define lfsr_two_avx_generic_with_tmp(x, y, tmp, r1, r2, mask) do {\
+#define lfsr_two_avx_generic_with_tmp(x, y, tmp, r1, r2, mask) {\
     y = avx_xor(avx_and(mask, avx_shift_right(tmp, r1)), \
                 avx_andnot(mask, avx_shift_left(x, r2)));\
-} while (0)
+}
 
 // ---------------------------------------------------------------------
 
-#define lfsr_two_avx_four_sequence(x, tmp) do {\
+#define lfsr_two_avx_four_sequence(x, tmp) {\
     tmp = avx_xor(x[0], avx_shift_left(x[0], 2)); \
     lfsr_two_avx_generic_with_tmp(x[0], x[ 4], tmp, 7, 1, avx_set8(0x01)); \
     lfsr_two_avx_generic_with_tmp(x[0], x[ 8], tmp, 6, 2, avx_set8(0x03)); \
     lfsr_two_avx_generic_with_tmp(x[0], x[12], tmp, 5, 3, avx_set8(0x07)); \
     lfsr_two_avx_generic_with_tmp(x[0], x[16], tmp, 4, 4, avx_set8(0x0F)); \
-} while (0)
+}
 
 // ---------------------------------------------------------------------
 
-#define lfsr_two_avx_six_sequence(x, tmp) do {\
+#define lfsr_two_avx_six_sequence(x, tmp) {\
     tmp = avx_xor(x[0], avx_shift_left(x[0], 2)); \
     lfsr_two_avx_generic_with_tmp(x[0], x[ 4], tmp, 7, 1, avx_set8(0x01)); \
     lfsr_two_avx_generic_with_tmp(x[0], x[ 8], tmp, 6, 2, avx_set8(0x03)); \
@@ -610,21 +610,21 @@ static const unsigned char RCON[17] = {
     lfsr_two_avx_generic_with_tmp(x[0], x[16], tmp, 4, 4, avx_set8(0x0F)); \
     lfsr_two_avx_generic_with_tmp(x[0], x[20], tmp, 3, 5, avx_set8(0x1F)); \
     lfsr_two_avx_generic_with_tmp(x[0], x[24], tmp, 2, 6, avx_set8(0x3F)); \
-} while (0)
+}
 
 // ---------------------------------------------------------------------
 
-#define lfsr_two_avx_four_sequence_base(x, tmp) do {\
+#define lfsr_two_avx_four_sequence_base(x, tmp) {\
     tmp = avx_xor(x[0], avx_shift_left(x[0], 2)); \
     lfsr_two_avx_generic_with_tmp(x[0], x[1], tmp, 7, 1, avx_set8(0x01)); \
     lfsr_two_avx_generic_with_tmp(x[0], x[2], tmp, 6, 2, avx_set8(0x03)); \
     lfsr_two_avx_generic_with_tmp(x[0], x[3], tmp, 5, 3, avx_set8(0x07)); \
     lfsr_two_avx_generic_with_tmp(x[0], x[4], tmp, 4, 4, avx_set8(0x0F)); \
-} while (0)
+}
 
 // ---------------------------------------------------------------------
 
-#define lfsr_two_avx_six_sequence_base(x, tmp) do {\
+#define lfsr_two_avx_six_sequence_base(x, tmp) {\
     tmp = avx_xor(x[0], avx_shift_left(x[0], 2)); \
     lfsr_two_avx_generic_with_tmp(x[0], x[1], tmp, 7, 1, avx_set8(0x01)); \
     lfsr_two_avx_generic_with_tmp(x[0], x[2], tmp, 6, 2, avx_set8(0x03)); \
@@ -632,7 +632,7 @@ static const unsigned char RCON[17] = {
     lfsr_two_avx_generic_with_tmp(x[0], x[4], tmp, 4, 4, avx_set8(0x0F)); \
     lfsr_two_avx_generic_with_tmp(x[0], x[5], tmp, 3, 5, avx_set8(0x1F)); \
     lfsr_two_avx_generic_with_tmp(x[0], x[6], tmp, 2, 6, avx_set8(0x3F)); \
-} while (0)
+}
 
 
 /**
@@ -647,17 +647,17 @@ static const unsigned char RCON[17] = {
  * Then, r times the LFSR2 application is given by a simple shift:
  * LFSR2^r(x) = (w >> (8-r)) & 0xFF.
  */
-#define lfsr_two_avx_compute_tmp(x, z, w) do {\
+#define lfsr_two_avx_compute_tmp(x, z, w) {\
     z = avx_and(x[0], AVX_MASK_ONLY_LOBYTES); \
     w = avx_xor(z, avx_shift_left(z, 2)); \
     w = avx_and(w, AVX_MASK_ONLY_LOBYTES); \
     w = avx_xor(w, avx_shift_right(w, 6)); \
     w = avx_or(avx_shift_bytes_left(z, 1), w); \
-} while (0)
+}
 
 // ---------------------------------------------------------------------
 
-#define lfsr_two_avx_eight_sequence_counters(x, z, tmp) do {\
+#define lfsr_two_avx_eight_sequence_counters(x, z, tmp) {\
     lfsr_two_avx_compute_tmp(x, z, tmp); \
     x[1] = avx_shift_right(tmp, 7); \
     x[2] = avx_shift_right(tmp, 6); \
@@ -667,20 +667,20 @@ static const unsigned char RCON[17] = {
     x[6] = avx_shift_right(tmp, 2); \
     x[7] = avx_shift_right(tmp, 1); \
     x[8] = tmp; \
-} while (0)
+}
 
 // ---------------------------------------------------------------------
 
-#define permute_avx_four(z, i) do {\
+#define permute_avx_four(z, i) {\
     z[0] = permute_avx(z[0], VH_PERMUTATION_##i);\
     z[1] = permute_avx(z[1], VH_PERMUTATION_##i);\
     z[2] = permute_avx(z[2], VH_PERMUTATION_##i);\
     z[3] = permute_avx(z[3], VH_PERMUTATION_##i);\
-} while (0)
+}
 
 // ---------------------------------------------------------------------
 
-#define combine_avx_four(x, tweak_blocks, counter) do {\
+#define combine_avx_four(x, tweak_blocks, counter) {\
     x[0] = avx_xor(tweak_blocks[0], avx_and(avx_shift_bytes_left(counter, 8), \
                                             AVX_BYTE_8_MASK)); \
     x[1] = avx_xor(tweak_blocks[1], avx_and(avx_shift_bytes_left(counter, 6), \
@@ -689,11 +689,11 @@ static const unsigned char RCON[17] = {
                                             AVX_BYTE_8_MASK)); \
     x[3] = avx_xor(tweak_blocks[3], avx_and(avx_shift_bytes_left(counter, 2), \
                                             AVX_BYTE_8_MASK)); \
-} while (0)
+}
 
 // ---------------------------------------------------------------------
 
-#define unpack_four(z, x) do {\
+#define unpack_four(z, x) {\
     x[0] = vget128(z[0], 0); \
     x[1] = vget128(z[0], 1); \
     x[2] = vget128(z[1], 0); \
@@ -702,11 +702,11 @@ static const unsigned char RCON[17] = {
     x[5] = vget128(z[2], 1); \
     x[6] = vget128(z[3], 0); \
     x[7] = vget128(z[3], 1); \
-} while (0)
+}
 
 // ---------------------------------------------------------------------
 
-#define init_counters(x, ctr) do {\
+#define init_counters(x, ctr) {\
     x[0] = avx_add8(avx_setr8(ctr, 0, ctr, 0, ctr, 0, ctr, 0, \
                               ctr, 0, ctr, 0, ctr, 0, ctr, 0, \
                               ctr, 0, ctr, 0, ctr, 0, ctr, 0, \
@@ -715,84 +715,84 @@ static const unsigned char RCON[17] = {
                               8, 0, 10, 0, 12, 0, 14, 0, \
                               1, 0, 3, 0, 5, 0, 7, 0, 9, \
                               0, 11, 0, 13, 0, 15, 0)); \
-} while (0)
+}
 
 // ---------------------------------------------------------------------
 
 #define update_round_eight(\
     avx_round_tweaks, tweak_blocks, counters, \
-    round_tweaks, states, round_keys, i, j) do {\
+    round_tweaks, states, round_keys, i, j) {\
     combine_avx_four(avx_round_tweaks, tweak_blocks, counters[j]); \
     permute_avx_four(avx_round_tweaks, i); \
     unpack_four(avx_round_tweaks, round_tweaks); \
     deoxys_enc_round_eight(states, round_tweaks, round_keys[j]);\
-} while (0)
+}
 
 
 // ---------------------------------------------------------------------
 
 #define update_round_eight_no_permute( \
     avx_round_tweaks, tweak_blocks, counters, \
-    round_tweaks, states, round_keys, i) do {\
+    round_tweaks, states, round_keys, i) {\
     combine_avx_four(avx_round_tweaks, tweak_blocks, counters[i]); \
     unpack_four(avx_round_tweaks, round_tweaks); \
     deoxys_enc_round_eight(states, round_tweaks, round_keys[i]);\
-} while (0)
+}
 
 // ---------------------------------------------------------------------
 
 #define update_invround_eight( \
     avx_round_tweaks, tweak_blocks, counters, \
-    round_tweaks, states, round_keys, i, j) do {\
+    round_tweaks, states, round_keys, i, j) {\
     combine_avx_four(avx_round_tweaks, tweak_blocks, counters[j]); \
     permute_avx_four(avx_round_tweaks, i); \
     unpack_four(avx_round_tweaks, round_tweaks); \
     deoxys_dec_round_eight(states, round_tweaks, round_keys[j]);\
-} while (0)
+}
 
 // ---------------------------------------------------------------------
 
 #define update_invround_eight_invmc( \
     avx_round_tweaks, tweak_blocks, counters, \
-    round_tweaks, states, round_keys, i, j) do {\
+    round_tweaks, states, round_keys, i, j) {\
     combine_avx_four(avx_round_tweaks, tweak_blocks, counters[j]); \
     permute_avx_four(avx_round_tweaks, i); \
     unpack_four(avx_round_tweaks, round_tweaks); \
     aes_invert_mix_columns_eight(round_tweaks, vzero); \
     deoxys_dec_round_eight(states, round_tweaks, round_keys[j]);\
-} while (0)
+}
 
 // ---------------------------------------------------------------------
 
 #define update_invround_eight_invmc_no_permute( \
     avx_round_tweaks, tweak_blocks, counters, \
-    round_tweaks, states, round_keys, i) do {\
+    round_tweaks, states, round_keys, i) {\
     combine_avx_four(avx_round_tweaks, tweak_blocks, counters[i]); \
     unpack_four(avx_round_tweaks, round_tweaks); \
     aes_invert_mix_columns_eight(round_tweaks, vzero); \
     deoxys_dec_round_eight(states, round_tweaks, round_keys[i]);\
-} while (0)
+}
 
 // ---------------------------------------------------------------------
 
 #define update_invlastround_eight_no_permute( \
     avx_round_tweaks, tweak_blocks, counters, \
-    round_tweaks, states, round_keys, i) do {\
+    round_tweaks, states, round_keys, i) {\
     combine_avx_four(avx_round_tweaks, tweak_blocks, counters[i]); \
     unpack_four(avx_round_tweaks, round_tweaks); \
     deoxys_declast_round_eight(states, states, round_tweaks, round_keys[i]);\
-} while (0)
+}
 
 // ---------------------------------------------------------------------
 // For the middle step
 // ---------------------------------------------------------------------
 
-#define init_middle_counters(x, ctr) do {\
+#define init_middle_counters(x, ctr) {\
     x[0] = vadd8(setr8(ctr, 0, ctr, 0, ctr, 0, ctr, 0, \
                        ctr, 0, ctr, 0, ctr, 0, ctr, 0), \
                  setr8(0, 0, 1, 0, 2, 0, 3, 0, \
                        4, 0, 5, 0, 6, 0, 7, 0)); \
-} while (0)
+}
 
 // ---------------------------------------------------------------------
 
@@ -808,13 +808,13 @@ static const unsigned char RCON[17] = {
  * Then, r times the LFSR2 application is given by a simple shift:
  * LFSR2^r(x) = (w >> (8-r)) & 0xFF.
  */
-#define lfsr_two_compute_w(x, z, w) do {\
+#define lfsr_two_compute_w(x, z, w) {\
     z = vand(x[0], MASK_ONLY_LOBYTES); \
     w = vxor(z, vshift_left(z, 2)); \
     w = vand(w, MASK_ONLY_LOBYTES); \
     w = vxor(w, vshift_right(w, 6)); \
     w = vor(vshift_bytes_left(z, 1), w); \
-} while (0)
+}
 
 // ---------------------------------------------------------------------
 
@@ -823,7 +823,7 @@ static const unsigned char RCON[17] = {
  * LFSR2^r(x) = (w >> (8-r)) & 0xFF.
  * Note: This does not yet perform the masking with & 0xFF.
  */
-#define lfsr_two_eight_sequence_counters(x, z, tmp) do {\
+#define lfsr_two_eight_sequence_counters(x, z, tmp) {\
     lfsr_two_compute_w(x, z, tmp); \
     x[1] = vshift_right(tmp, 7); \
     x[2] = vshift_right(tmp, 6); \
@@ -833,11 +833,11 @@ static const unsigned char RCON[17] = {
     x[6] = vshift_right(tmp, 2); \
     x[7] = vshift_right(tmp, 1); \
     x[8] = tmp; \
-} while (0)
+}
 
 // ---------------------------------------------------------------------
 
-#define combine_eight(x, counter, permutation) do {\
+#define combine_eight(x, counter, permutation) {\
     x[0] = vxor(x[0], permute(\
         vand(vshift_bytes_left(counter, 8), BYTE_8_MASK), permutation)); \
     x[1] = vxor(x[1], permute(\
@@ -854,11 +854,11 @@ static const unsigned char RCON[17] = {
         vand(vshift_bytes_right(counter, 4), BYTE_8_MASK), permutation)); \
     x[7] = vxor(x[7], permute(\
         vand(vshift_bytes_right(counter, 6), BYTE_8_MASK), permutation)); \
-} while (0)
+}
 
 // ---------------------------------------------------------------------
 
-#define combine_eight_no_permute(x, counter) do {\
+#define combine_eight_no_permute(x, counter) {\
     x[0] = vxor(x[0], vand(vshift_bytes_left(counter, 8), BYTE_8_MASK)); \
     x[1] = vxor(x[1], vand(vshift_bytes_left(counter, 6), BYTE_8_MASK)); \
     x[2] = vxor(x[2], vand(vshift_bytes_left(counter, 4), BYTE_8_MASK)); \
@@ -867,23 +867,23 @@ static const unsigned char RCON[17] = {
     x[5] = vxor(x[5], vand(vshift_bytes_right(counter, 2), BYTE_8_MASK)); \
     x[6] = vxor(x[6], vand(vshift_bytes_right(counter, 4), BYTE_8_MASK)); \
     x[7] = vxor(x[7], vand(vshift_bytes_right(counter, 6), BYTE_8_MASK)); \
-} while (0)
+}
 
 // ---------------------------------------------------------------------
 // For setup of four tweaks
 // ---------------------------------------------------------------------
 
-#define lfsr_two_avx_four_sequence_two(x, tmp) do {\
+#define lfsr_two_avx_four_sequence_two(x, tmp) {\
     tmp = avx_xor(x[0], avx_shift_left(x[0], 2)); \
     lfsr_two_avx_generic_with_tmp(x[0], x[2], tmp, 7, 1, avx_set8(0x01)); \
     lfsr_two_avx_generic_with_tmp(x[0], x[4], tmp, 6, 2, avx_set8(0x03)); \
     lfsr_two_avx_generic_with_tmp(x[0], x[6], tmp, 5, 3, avx_set8(0x07)); \
     lfsr_two_avx_generic_with_tmp(x[0], x[8], tmp, 4, 4, avx_set8(0x0F)); \
-} while (0)
+}
 
 // ---------------------------------------------------------------------
 
-#define lfsr_two_avx_six_sequence_two(x, tmp) do {\
+#define lfsr_two_avx_six_sequence_two(x, tmp) {\
     tmp = avx_xor(x[0], avx_shift_left(x[0], 2)); \
     lfsr_two_avx_generic_with_tmp(x[0], x[ 2], tmp, 7, 1, avx_set8(0x01)); \
     lfsr_two_avx_generic_with_tmp(x[0], x[ 4], tmp, 6, 2, avx_set8(0x03)); \
@@ -891,18 +891,18 @@ static const unsigned char RCON[17] = {
     lfsr_two_avx_generic_with_tmp(x[0], x[ 8], tmp, 4, 4, avx_set8(0x0F)); \
     lfsr_two_avx_generic_with_tmp(x[0], x[10], tmp, 3, 5, avx_set8(0x1F)); \
     lfsr_two_avx_generic_with_tmp(x[0], x[12], tmp, 2, 6, avx_set8(0x3F)); \
-} while (0)
+}
 
 // ---------------------------------------------------------------------
 
-#define permute_avx_two(z, i) do {\
+#define permute_avx_two(z, i) {\
     z[0] = permute_avx(z[0], VH_PERMUTATION_##i);\
     z[1] = permute_avx(z[1], VH_PERMUTATION_##i);\
-} while (0)
+}
 
 // ---------------------------------------------------------------------
 
-#define permute_avx_all(z) do {\
+#define permute_avx_all(z) {\
     permute_avx_two((z +  2), 1); \
     permute_avx_two((z +  4), 2); \
     permute_avx_two((z +  6), 3); \
@@ -917,25 +917,25 @@ static const unsigned char RCON[17] = {
     permute_avx_two((z + 26), 5); \
     permute_avx_two((z + 28), 6); \
     permute_avx_two((z + 30), 7); \
-} while (0)
+}
 
 // ---------------------------------------------------------------------
 
-#define combine_avx_two(x, tweak_blocks, counter) do {\
+#define combine_avx_two(x, tweak_blocks, counter) {\
     x[0] = avx_xor(tweak_blocks[0], avx_and(avx_shift_bytes_left(counter, 8), \
                                             AVX_BYTE_8_MASK)); \
     x[1] = avx_xor(tweak_blocks[1], avx_and(avx_shift_bytes_left(counter, 6), \
                                             AVX_BYTE_8_MASK)); \
-} while (0)
+}
 
 // ---------------------------------------------------------------------
 
-#define unpack_two(z, x) do {\
+#define unpack_two(z, x) {\
     x[0] = vget128(z[0], 0); \
     x[1] = vget128(z[0], 1); \
     x[2] = vget128(z[1], 0); \
     x[3] = vget128(z[1], 1); \
-} while (0)
+}
 
 // ---------------------------------------------------------------------
 // Setup
@@ -1297,10 +1297,10 @@ void deoxys_bc_128_384_encrypt_eight_eight(deoxys_bc_128_384_ctx_t* ctx,
 
 // ---------------------------------------------------------------------
 
-#define aesenc_round_and_combine_counters(states, i, permutation) do { \
+#define aesenc_round_and_combine_counters(states, i, permutation) { \
     vaesenc_round_eight(states, ctx->combined_round_keys[i]); \
     combine_eight(states, counters[i], permutation); \
-} while (0)
+}
 
 // ---------------------------------------------------------------------
 

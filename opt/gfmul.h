@@ -42,20 +42,20 @@
 
 // ---------------------------------------------------------------------
 
-#define gf_2_128_double(x, y, tmp) do {\
+#define gf_2_128_double(x, y, tmp) { \
     tmp = _mm_srai_epi32(x, 31); \
     tmp = vand(tmp, set32(135, 1, 1, 1)); \
     tmp = _mm_shuffle_epi32(tmp, _MM_SHUFFLE(2, 1, 0, 3)); \
     x = _mm_slli_epi32(x, 1); \
     y = vxor(x, tmp); \
-} while (0)
+}
 
 // ---------------------------------------------------------------------
 
-#define gf_2_128_times_four(x, y, tmp) do {\
+#define gf_2_128_times_four(x, y, tmp) { \
     gf_2_128_double(x, y, tmp); \
     gf_2_128_double(y, y, tmp); \
-} while (0)
+}
 
 // ---------------------------------------------------------------------
 

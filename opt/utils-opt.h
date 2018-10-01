@@ -131,98 +131,98 @@
 
 // ---------------------------------------------------------------------
 
-#define avx_load_two(p, x) do {\
-    p[0] = avx_loadu(x);\
-    p[1] = avx_loadu(x+1);\
-} while (0)
+#define avx_load_two(p, x) { \
+    p[0] = avx_loadu(x); \
+    p[1] = avx_loadu(x+1); \
+}
 
 // ---------------------------------------------------------------------
 
-#define avx_store_two(p, x) do {\
-    avx_storeu(p, x[0]);\
-    avx_storeu(p+1, x[1]);\
-} while (0)
+#define avx_store_two(p, x) { \
+    avx_storeu(p, x[0]); \
+    avx_storeu(p+1, x[1]); \
+}
 
 // ---------------------------------------------------------------------
 
-#define avx_load_four(p, x) do {\
-    p[0] = avx_loadu(x);\
-    p[1] = avx_loadu(x+1);\
-    p[2] = avx_loadu(x+2);\
-    p[3] = avx_loadu(x+3);\
-} while (0)
+#define avx_load_four(p, x) { \
+    p[0] = avx_loadu(x); \
+    p[1] = avx_loadu(x+1); \
+    p[2] = avx_loadu(x+2); \
+    p[3] = avx_loadu(x+3); \
+}
 
 // ---------------------------------------------------------------------
 
-#define avx_store_four(p, x) do {\
-    avx_storeu(p, x[0]);\
-    avx_storeu(p+1, x[1]);\
-    avx_storeu(p+2, x[2]);\
-    avx_storeu(p+3, x[3]);\
-} while (0)
+#define avx_store_four(p, x) { \
+    avx_storeu(p, x[0]); \
+    avx_storeu(p+1, x[1]); \
+    avx_storeu(p+2, x[2]); \
+    avx_storeu(p+3, x[3]); \
+}
 
 // ---------------------------------------------------------------------
 // Multiple blocks
 // ---------------------------------------------------------------------
 
-#define load_four(p, x) do {\
-    p[0] = loadu(x);\
-    p[1] = loadu(x+1);\
-    p[2] = loadu(x+2);\
-    p[3] = loadu(x+3);\
-} while (0)
+#define load_four(p, x) { \
+    p[0] = loadu(x); \
+    p[1] = loadu(x+1); \
+    p[2] = loadu(x+2); \
+    p[3] = loadu(x+3); \
+}
 
 // ---------------------------------------------------------------------
 
-#define store_four(p, x) do {\
-    storeu(p, x[0]);\
-    storeu(p+1, x[1]);\
-    storeu(p+2, x[2]);\
-    storeu(p+3, x[3]);\
-} while (0)
+#define store_four(p, x) { \
+    storeu(p, x[0]); \
+    storeu(p+1, x[1]); \
+    storeu(p+2, x[2]); \
+    storeu(p+3, x[3]); \
+}
 
 // ---------------------------------------------------------------------
 
-#define load_eight(p, x) do {\
-    p[0] = loadu(x);\
-    p[1] = loadu(x+1);\
-    p[2] = loadu(x+2);\
-    p[3] = loadu(x+3);\
-    p[4] = loadu(x+4);\
-    p[5] = loadu(x+5);\
-    p[6] = loadu(x+6);\
-    p[7] = loadu(x+7);\
-} while (0)
+#define load_eight(p, x) { \
+    p[0] = loadu(x); \
+    p[1] = loadu(x+1); \
+    p[2] = loadu(x+2); \
+    p[3] = loadu(x+3); \
+    p[4] = loadu(x+4); \
+    p[5] = loadu(x+5); \
+    p[6] = loadu(x+6); \
+    p[7] = loadu(x+7); \
+}
 
 // ---------------------------------------------------------------------
 
-#define store_eight(p, x) do {\
-    storeu(p, x[0]);\
-    storeu(p+1, x[1]);\
-    storeu(p+2, x[2]);\
-    storeu(p+3, x[3]);\
-    storeu(p+4, x[4]);\
-    storeu(p+5, x[5]);\
-    storeu(p+6, x[6]);\
-    storeu(p+7, x[7]);\
-} while (0)
+#define store_eight(p, x) { \
+    storeu(p, x[0]); \
+    storeu(p+1, x[1]); \
+    storeu(p+2, x[2]); \
+    storeu(p+3, x[3]); \
+    storeu(p+4, x[4]); \
+    storeu(p+5, x[5]); \
+    storeu(p+6, x[6]); \
+    storeu(p+7, x[7]); \
+}
 
 // ---------------------------------------------------------------------
 
-#define gf_double(x, y, tmp) do {\
+#define gf_double(x, y, tmp) { \
     tmp = _mm_srai_epi32(x, 31); \
     tmp = vand(tmp, _mm_set_epi32(135, 1, 1, 1)); \
     tmp = _mm_shuffle_epi32(tmp, _MM_SHUFFLE(2, 1, 0, 3)); \
     x = _mm_slli_epi32(x, 1); \
     y = vxor(x, tmp); \
-} while (0)
+}
 
 // ---------------------------------------------------------------------
 
-#define gf_times_four(x, y, tmp) do { \
+#define gf_times_four(x, y, tmp) { \
     gf_double(x, y, tmp); \
     gf_double(y, y, tmp); \
-} while (0)
+}
 
 // ---------------------------------------------------------------------
 // AES

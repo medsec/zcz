@@ -139,7 +139,7 @@ static void hash(zcz_ctx_t* ctx,
 
 // ---------------------------------------------------------------------
 
-#define load_eight_blocks(states, source) do {\
+#define load_eight_blocks(states, source) { \
     states[0] = load(source); \
     states[1] = load((source + 2)); \
     states[2] = load((source + 4)); \
@@ -148,11 +148,11 @@ static void hash(zcz_ctx_t* ctx,
     states[5] = load((source + 10)); \
     states[6] = load((source + 12)); \
     states[7] = load((source + 14)); \
-} while (0)
+}
 
 // ---------------------------------------------------------------------
 
-#define store_eight_blocks(target, states) do {\
+#define store_eight_blocks(target, states) { \
     store(target, states[0]); \
     store((target + 2), states[1]); \
     store((target + 4), states[2]); \
@@ -161,11 +161,11 @@ static void hash(zcz_ctx_t* ctx,
     store((target + 10), states[5]); \
     store((target + 12), states[6]); \
     store((target + 14), states[7]); \
-} while (0)
+}
 
 // ---------------------------------------------------------------------
 
-#define vxor_eight(x, y, z) do {\
+#define vxor_eight(x, y, z) { \
     z[0] = vxor(x[0], y[0]);\
     z[1] = vxor(x[1], y[1]);\
     z[2] = vxor(x[2], y[2]);\
@@ -174,11 +174,11 @@ static void hash(zcz_ctx_t* ctx,
     z[5] = vxor(x[5], y[5]);\
     z[6] = vxor(x[6], y[6]);\
     z[7] = vxor(x[7], y[7]);\
-} while (0)
+}
 
 // ---------------------------------------------------------------------
 
-#define vxor_eight_same_x(x, y, z) do {\
+#define vxor_eight_same_x(x, y, z) { \
     z[0] = vxor(x, y[0]);\
     z[1] = vxor(x, y[1]);\
     z[2] = vxor(x, y[2]);\
@@ -187,11 +187,11 @@ static void hash(zcz_ctx_t* ctx,
     z[5] = vxor(x, y[5]);\
     z[6] = vxor(x, y[6]);\
     z[7] = vxor(x, y[7]);\
-} while (0)
+}
 
 // ---------------------------------------------------------------------
 
-#define set_eight_blocks_same_x(x, y) do {\
+#define set_eight_blocks_same_x(x, y) { \
     y[0] = x; \
     y[1] = x; \
     y[2] = x; \
@@ -200,7 +200,7 @@ static void hash(zcz_ctx_t* ctx,
     y[5] = x; \
     y[6] = x; \
     y[7] = x; \
-} while (0)
+}
 
 // ---------------------------------------------------------------------
 
